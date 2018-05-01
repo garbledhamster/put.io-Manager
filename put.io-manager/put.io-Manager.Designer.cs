@@ -99,10 +99,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.statusStripManager);
-            this.Controls.Add(this.menuStripManager);
-            this.MainMenuStrip = this.menuStripManager;
-            this.Name = "FormManager";
+            this.Name = "Form1";
             this.Text = "put.io Manager";
             this.menuStripManager.ResumeLayout(false);
             this.menuStripManager.PerformLayout();
