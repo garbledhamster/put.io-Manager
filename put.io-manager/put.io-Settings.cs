@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Net.Http;
 
 namespace put.io_manager
 {
@@ -21,9 +22,11 @@ namespace put.io_manager
 
         }
 
+
         private void buttonGetToken_Click(object sender, EventArgs e)
         {
             
+            Authentication.OAuthRequestURL("3355", "oob", "na");
         }
     }
 }

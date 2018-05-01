@@ -28,5 +28,10 @@ namespace put.io_manager
         {
             Application.Exit();
         }
+
+        private void FormManager_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
