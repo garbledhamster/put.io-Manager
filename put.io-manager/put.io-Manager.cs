@@ -19,19 +19,19 @@ namespace put.io_manager
         FormSettings FormSettings = new FormSettings();
 
 
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FormManager_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormSettings.Show();
         }
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        private void exitToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        }
-
-        private void FormManager_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }
