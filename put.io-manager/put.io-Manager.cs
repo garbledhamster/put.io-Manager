@@ -9,11 +9,24 @@ using System.Windows.Forms;
 
 namespace put.io_manager
 {
-    public partial class Form1 : Form
+    public partial class FormManager : Form
     {
-        public Form1()
+        public FormManager()
         {
             InitializeComponent();
+        }
+
+        FormSettings FormSettings = new FormSettings();
+
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormSettings.Show();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
