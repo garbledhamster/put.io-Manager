@@ -17,33 +17,37 @@ namespace putio
             InitializeComponent();
         }
 
-        private void buttonGetToken_Click(object sender, EventArgs e)
+        private void InitializeControls()
         {
-            FormPutioAuthWeb authweb = new FormPutioAuthWeb();
-            Uri uri = new Uri(@"https://api.put.io/v2/oauth2/authenticate?client_id=3504&response_type=oob&redirect_uri=");
-            authweb.webBrowserUserAuth.Url = uri;
-            authweb.webBrowserUserAuth.ScriptErrorsSuppressed = true;
-            authweb.Location = this.Location;
-            authweb.Show();
+            textBoxToken.Text = Properties.Settings.Default.OAuthToken;
+            textBoxDownloadPath.Text = Properties.Settings.Default.DownloadDirectory;
+            checkBoxShowToolTips.Checked = Properties.Settings.Default.ShowToolTips;
+        }
+
+        private void PutioSettings_Load(object sender, EventArgs e)
+        {
+            InitializeControls();
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.OAuthToken = textBoxToken.Text;
-            Properties.Settings.Default.DownloadDirectory = textBoxDownloadPath.Text;  
+            Properties.Settings.Default.DownloadDirectory = textBoxDownloadPath.Text;
+            Properties.Settings.Default.ShowToolTips = checkBoxShowToolTips.Checked;
             Properties.Settings.Default.Save();
             this.Close();
         }
 
-        private void PutioSettings_Load(object sender, EventArgs e)
+        private void buttonGetToken_Click(object sender, EventArgs e)
         {
-            SetTextBoxes();
-        }
-
-        private void SetTextBoxes()
-        {
-            textBoxToken.Text = Properties.Settings.Default.OAuthToken;
-            textBoxDownloadPath.Text = Properties.Settings.Default.DownloadDirectory;
+            string url = "https://api.put.io/v2/oauth2/authenticate?client_id=3504&response_type=oob&redirect_uri=";
+            FormPutioAuthWeb authweb = new FormPutioAuthWeb();
+            Uri uri = new Uri(url);
+            authweb.labelAddress.Text = url;
+            authweb.webBrowserUserAuth.Url = uri;
+            authweb.StartPosition = FormStartPosition.CenterParent;
+            
+            authweb.ShowDialog();
         }
 
         private void buttonDownloadPathChange_Click(object sender, EventArgs e)
@@ -55,7 +59,7 @@ namespace putio
                 {
                     Properties.Settings.Default.DownloadDirectory = fbd.SelectedPath;
                     Properties.Settings.Default.Save();
-                    SetTextBoxes();
+                    InitializeControls();
                 }
             }
         }

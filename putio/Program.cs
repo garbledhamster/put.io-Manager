@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
 using System.IO;
+using System.Net;
 
 namespace putio
 {
@@ -19,6 +20,7 @@ namespace putio
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            ServicePointManager.DefaultConnectionLimit = Properties.Settings.Default.ConcurrentDownloads;
             Application.Run(new FormPutioManager());
         }
 

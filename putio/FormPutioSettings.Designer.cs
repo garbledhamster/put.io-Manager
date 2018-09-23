@@ -33,10 +33,16 @@
             this.textBoxToken = new System.Windows.Forms.TextBox();
             this.buttonSave = new System.Windows.Forms.Button();
             this.groupBoxDownloads = new System.Windows.Forms.GroupBox();
-            this.textBoxDownloadPath = new System.Windows.Forms.TextBox();
             this.buttonDownloadPathChange = new System.Windows.Forms.Button();
+            this.textBoxDownloadPath = new System.Windows.Forms.TextBox();
+            this.checkBoxShowToolTips = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.labelConcurrentDownloads = new System.Windows.Forms.Label();
             this.groupBoxAuthentication.SuspendLayout();
             this.groupBoxDownloads.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBoxAuthentication
@@ -46,7 +52,7 @@
             this.groupBoxAuthentication.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBoxAuthentication.Location = new System.Drawing.Point(12, 12);
             this.groupBoxAuthentication.Name = "groupBoxAuthentication";
-            this.groupBoxAuthentication.Size = new System.Drawing.Size(284, 82);
+            this.groupBoxAuthentication.Size = new System.Drawing.Size(262, 82);
             this.groupBoxAuthentication.TabIndex = 0;
             this.groupBoxAuthentication.TabStop = false;
             this.groupBoxAuthentication.Text = "Authentication";
@@ -54,7 +60,7 @@
             // buttonGetToken
             // 
             this.buttonGetToken.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.buttonGetToken.Location = new System.Drawing.Point(161, 23);
+            this.buttonGetToken.Location = new System.Drawing.Point(161, 27);
             this.buttonGetToken.Name = "buttonGetToken";
             this.buttonGetToken.Size = new System.Drawing.Size(90, 23);
             this.buttonGetToken.TabIndex = 1;
@@ -65,8 +71,9 @@
             // textBoxToken
             // 
             this.textBoxToken.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.textBoxToken.Location = new System.Drawing.Point(6, 25);
+            this.textBoxToken.Location = new System.Drawing.Point(8, 29);
             this.textBoxToken.Name = "textBoxToken";
+            this.textBoxToken.PasswordChar = '•';
             this.textBoxToken.Size = new System.Drawing.Size(149, 20);
             this.textBoxToken.TabIndex = 0;
             // 
@@ -83,24 +90,17 @@
             // 
             // groupBoxDownloads
             // 
+            this.groupBoxDownloads.Controls.Add(this.labelConcurrentDownloads);
+            this.groupBoxDownloads.Controls.Add(this.numericUpDown1);
             this.groupBoxDownloads.Controls.Add(this.buttonDownloadPathChange);
             this.groupBoxDownloads.Controls.Add(this.textBoxDownloadPath);
             this.groupBoxDownloads.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.groupBoxDownloads.Location = new System.Drawing.Point(12, 100);
             this.groupBoxDownloads.Name = "groupBoxDownloads";
-            this.groupBoxDownloads.Size = new System.Drawing.Size(459, 138);
+            this.groupBoxDownloads.Size = new System.Drawing.Size(459, 90);
             this.groupBoxDownloads.TabIndex = 3;
             this.groupBoxDownloads.TabStop = false;
             this.groupBoxDownloads.Text = "Downloads";
-            // 
-            // textBoxDownloadPath
-            // 
-            this.textBoxDownloadPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxDownloadPath.Location = new System.Drawing.Point(8, 25);
-            this.textBoxDownloadPath.Name = "textBoxDownloadPath";
-            this.textBoxDownloadPath.ReadOnly = true;
-            this.textBoxDownloadPath.Size = new System.Drawing.Size(364, 20);
-            this.textBoxDownloadPath.TabIndex = 2;
             // 
             // buttonDownloadPathChange
             // 
@@ -113,12 +113,74 @@
             this.buttonDownloadPathChange.UseVisualStyleBackColor = true;
             this.buttonDownloadPathChange.Click += new System.EventHandler(this.buttonDownloadPathChange_Click);
             // 
+            // textBoxDownloadPath
+            // 
+            this.textBoxDownloadPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxDownloadPath.Location = new System.Drawing.Point(8, 25);
+            this.textBoxDownloadPath.Name = "textBoxDownloadPath";
+            this.textBoxDownloadPath.ReadOnly = true;
+            this.textBoxDownloadPath.Size = new System.Drawing.Size(364, 20);
+            this.textBoxDownloadPath.TabIndex = 2;
+            // 
+            // checkBoxShowToolTips
+            // 
+            this.checkBoxShowToolTips.AutoSize = true;
+            this.checkBoxShowToolTips.Checked = true;
+            this.checkBoxShowToolTips.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxShowToolTips.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.checkBoxShowToolTips.Location = new System.Drawing.Point(12, 31);
+            this.checkBoxShowToolTips.Name = "checkBoxShowToolTips";
+            this.checkBoxShowToolTips.Size = new System.Drawing.Size(100, 17);
+            this.checkBoxShowToolTips.TabIndex = 4;
+            this.checkBoxShowToolTips.Text = "Show Tool Tips";
+            this.checkBoxShowToolTips.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.checkBoxShowToolTips);
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.groupBox1.Location = new System.Drawing.Point(280, 12);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(191, 82);
+            this.groupBox1.TabIndex = 5;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "General";
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.numericUpDown1.Location = new System.Drawing.Point(127, 51);
+            this.numericUpDown1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(48, 20);
+            this.numericUpDown1.TabIndex = 4;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // labelConcurrentDownloads
+            // 
+            this.labelConcurrentDownloads.AutoSize = true;
+            this.labelConcurrentDownloads.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.labelConcurrentDownloads.Location = new System.Drawing.Point(6, 53);
+            this.labelConcurrentDownloads.Name = "labelConcurrentDownloads";
+            this.labelConcurrentDownloads.Size = new System.Drawing.Size(115, 13);
+            this.labelConcurrentDownloads.TabIndex = 5;
+            this.labelConcurrentDownloads.Text = "Concurrent Downloads";
+            // 
             // FormPutioSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(483, 321);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBoxDownloads);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.groupBoxAuthentication);
@@ -126,12 +188,16 @@
             this.MaximumSize = new System.Drawing.Size(499, 360);
             this.MinimumSize = new System.Drawing.Size(499, 360);
             this.Name = "FormPutioSettings";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Put.io Manager - Settings";
             this.Load += new System.EventHandler(this.PutioSettings_Load);
             this.groupBoxAuthentication.ResumeLayout(false);
             this.groupBoxAuthentication.PerformLayout();
             this.groupBoxDownloads.ResumeLayout(false);
             this.groupBoxDownloads.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -145,5 +211,9 @@
         private System.Windows.Forms.GroupBox groupBoxDownloads;
         private System.Windows.Forms.Button buttonDownloadPathChange;
         private System.Windows.Forms.TextBox textBoxDownloadPath;
+        private System.Windows.Forms.CheckBox checkBoxShowToolTips;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label labelConcurrentDownloads;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
     }
 }
