@@ -30,7 +30,7 @@ namespace putio
             rootnode.Tag = "root";
             OAuthToken = Properties.Settings.Default.OAuthToken;
             filemgr = new PutioManager(OAuthToken);
-
+            treeViewPutioFiles.NodeMouseClick += (sender, args) => treeViewPutioFiles.SelectedNode = args.Node;
         }
 
         public string OAuthToken;
@@ -59,24 +59,6 @@ namespace putio
             }
         }
 
-        private async void downloadToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string id = treeViewPutioFiles.SelectedNode.Tag.ToString();
-            JObject fileProperties = await filemgr.Get(id);
-            string filename = fileProperties["name"].ToString();
-            string filetype = fileProperties["file_type"].ToString();
-            string size = fileProperties["size"].ToString();
-            string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
-            string path = Properties.Settings.Default.DownloadDirectory + @"\" + filename;
-            Uri uriDownloadFile = new Uri(urlPutioApi + "files/" + id + "/download?oauth_token=" + OAuthToken);
-            dataGridView1.Rows.Add(filename, filetype, size, started, "");
-
-            DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
-            newDownloadRow.Tag = id;
-            DownloadFile(uriDownloadFile, path, newDownloadRow);
-
-        }
-
         private async void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TreeNode selectednode = treeViewPutioFiles.SelectedNode;
@@ -100,22 +82,47 @@ namespace putio
             {
                 rename.textBoxNewName.Text = selectednode.Text;
                 rename.ShowDialog();
-
-                if (rename.NewName.Length > 0 & rename.NewName != oldname)
+                try
                 {
-                    string id = selectednode.Tag.ToString();
-                    var rename_response = await filemgr.Rename(id, rename.NewName);
-
-                    string status = JObject.Parse(rename_response)["status"].ToString();
-
-                    if (status == "OK")
+                    if (rename.NewName.Length > 0 & rename.NewName != oldname)
                     {
-                        selectednode.Text = rename.NewName;
-                        UpdateStatusText(string.Format("'{0}' was successfully renamed to '{1}'", oldname, selectednode.Text));
+                        string id = selectednode.Tag.ToString();
+                        var rename_response = await filemgr.Rename(id, rename.NewName);
+
+                        string status = JObject.Parse(rename_response)["status"].ToString();
+
+                        if (status == "OK")
+                        {
+                            selectednode.Text = rename.NewName;
+                            UpdateStatusText(string.Format("'{0}' was successfully renamed to '{1}'", oldname, selectednode.Text));
+                        }
                     }
                 }
+                catch
+                {
+                    UpdateStatusText(string.Format("'{0}' name was not modified", oldname));
+                }
+               
                 
             }
+        }
+
+        private async void downloadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string id = treeViewPutioFiles.SelectedNode.Tag.ToString();
+            JObject fileProperties = await filemgr.Get(id);
+            string filename = fileProperties["name"].ToString();
+            string filetype = fileProperties["file_type"].ToString();
+            string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+            Console.WriteLine(filename + " started downloading at " + started);
+            string path = Properties.Settings.Default.DownloadDirectory + @"\" + filename;
+            Uri uriDownloadFile = new Uri(urlPutioApi + "files/" + id + "/download?oauth_token=" + OAuthToken);
+            dataGridView1.Rows.Add(filename, filetype, started, "", "");
+
+            DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
+            newDownloadRow.Tag = id;
+            DownloadFile(uriDownloadFile, path, newDownloadRow);
+
         }
 
         private async void zipDownloadToolStripMenuItem_Click(object sender, EventArgs e)
@@ -128,20 +135,18 @@ namespace putio
             Console.WriteLine("ZipId=" + zipid);
 
             string status = null;
-            string size = null;
             Uri uriZipFile = null;
 
             do
             {
                 var zip_properties = await filemgr.GetZip(zipid);
-                Console.WriteLine(zip_properties);
+                //Console.WriteLine(zip_properties);
                 string zipstatus = zip_properties["zip_status"].ToString();
-                Console.WriteLine(zipstatus);
+                //Console.WriteLine(zipstatus);
                 if (zipstatus == "DONE")
                 {
                     status = zipstatus;
                     uriZipFile= new Uri(zip_properties["url"].ToString());
-                    size = zip_properties["size"].ToString();
                 }
 
             } while (status != "DONE");
@@ -150,7 +155,7 @@ namespace putio
             string filetype = "ZIP";
             string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
             string path = Properties.Settings.Default.DownloadDirectory + @"\" + filename;
-            dataGridView1.Rows.Add(filename, filetype, size, started, "0%");
+            dataGridView1.Rows.Add(filename, filetype, started, "", "");
             DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
             DownloadFile(uriZipFile, path, newDownloadRow);
 
@@ -206,6 +211,7 @@ namespace putio
                 {
                     message += property.Key.ToString().ToLower() + ": " + property.Value.ToString().ToLower() + Environment.NewLine;
                 }
+
                 newnode.ToolTipText = message;
                 if (file["file_type"].ToString() != "FOLDER")
                 {
@@ -276,6 +282,7 @@ namespace putio
                 return;
             }
 
+            UpdateCellValue(newDownloadRow, "ColumnCompleted", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"));
             UpdateCellValue(newDownloadRow, "ColumnStatus", "Complete");
         }
 

@@ -51,8 +51,8 @@
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.ColumnFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColumnSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnStarted = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnCompleted = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStripMain.SuspendLayout();
             this.statusStripMain.SuspendLayout();
@@ -85,7 +85,7 @@
             // testToolStripMenuItem
             // 
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
-            this.testToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.testToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
             this.testToolStripMenuItem.Text = "Test";
             this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
             // 
@@ -118,7 +118,7 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(744, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(843, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "STATUS STRIP TEXT";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -233,8 +233,8 @@
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ColumnFile,
             this.ColumnType,
-            this.ColumnSize,
             this.ColumnStarted,
+            this.ColumnCompleted,
             this.ColumnStatus});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.GridColor = System.Drawing.Color.Gray;
@@ -258,17 +258,17 @@
             this.ColumnType.Name = "ColumnType";
             this.ColumnType.ReadOnly = true;
             // 
-            // ColumnSize
-            // 
-            this.ColumnSize.HeaderText = "Size";
-            this.ColumnSize.Name = "ColumnSize";
-            this.ColumnSize.ReadOnly = true;
-            // 
             // ColumnStarted
             // 
             this.ColumnStarted.HeaderText = "Started";
             this.ColumnStarted.Name = "ColumnStarted";
             this.ColumnStarted.ReadOnly = true;
+            // 
+            // ColumnCompleted
+            // 
+            this.ColumnCompleted.HeaderText = "Completed";
+            this.ColumnCompleted.Name = "ColumnCompleted";
+            this.ColumnCompleted.ReadOnly = true;
             // 
             // ColumnStatus
             // 
@@ -322,15 +322,15 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.ToolStripMenuItem downloadToolStripMenuItem;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnFile;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnType;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnSize;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnStarted;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnStatus;
         private System.Windows.Forms.ToolStripMenuItem zipDownloadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnFile;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnType;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnStarted;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnCompleted;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnStatus;
     }
 }
 
