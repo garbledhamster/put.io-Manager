@@ -53,7 +53,7 @@ namespace putio.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool ShowToolTips {
             get {
                 return ((bool)(this["ShowToolTips"]));
@@ -72,6 +72,18 @@ namespace putio.Properties {
             }
             set {
                 this["ParallelDownloads"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DeleteAfterDownload {
+            get {
+                return ((bool)(this["DeleteAfterDownload"]));
+            }
+            set {
+                this["DeleteAfterDownload"] = value;
             }
         }
     }

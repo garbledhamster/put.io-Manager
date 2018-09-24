@@ -23,6 +23,15 @@ namespace putio
 
         }
 
+        public async Task<JObject> AccountInfo()
+        {
+            string urlGetAccountInfo = string.Format(urlPutioApi + "account/info?{0}={1}",
+                "oauth_token", oAuthToken);
+            //Console.WriteLine("[FILE URL] " + urlGetListFiles);
+            string response = await httpClient.GetStringAsync(urlGetAccountInfo);
+            return (JObject)JObject.Parse(response)["info"];
+        }
+
         public async Task<JArray> List(string inStrParentId)
         {
             string urlGetListFiles = string.Format(urlPutioApi + "files/list?{0}={1}&{2}={3}",

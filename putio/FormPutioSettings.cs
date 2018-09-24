@@ -24,6 +24,7 @@ namespace putio
             textBoxDownloadPath.Text = Properties.Settings.Default.DownloadDirectory;
             checkBoxShowToolTips.Checked = Properties.Settings.Default.ShowToolTips;
             numericUpDown1.Value = Properties.Settings.Default.ParallelDownloads;
+            checkBoxDeleteAfterDownload.Checked = Properties.Settings.Default.DeleteAfterDownload;
         }
 
         private void PutioSettings_Load(object sender, EventArgs e)
@@ -37,6 +38,7 @@ namespace putio
             Properties.Settings.Default.DownloadDirectory = textBoxDownloadPath.Text;
             Properties.Settings.Default.ShowToolTips = checkBoxShowToolTips.Checked;
             Properties.Settings.Default.ParallelDownloads = Convert.ToInt32(numericUpDown1.Value);
+            Properties.Settings.Default.DeleteAfterDownload = checkBoxDeleteAfterDownload.Checked;
             Properties.Settings.Default.Save();
             this.Close();
         }
