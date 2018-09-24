@@ -15,6 +15,7 @@ namespace putio
         public FormPutioSettings()
         {
             InitializeComponent();
+            InitializeControls();
         }
 
         private void InitializeControls()
@@ -22,11 +23,12 @@ namespace putio
             textBoxToken.Text = Properties.Settings.Default.OAuthToken;
             textBoxDownloadPath.Text = Properties.Settings.Default.DownloadDirectory;
             checkBoxShowToolTips.Checked = Properties.Settings.Default.ShowToolTips;
+            numericUpDown1.Value = Properties.Settings.Default.ParallelDownloads;
         }
 
         private void PutioSettings_Load(object sender, EventArgs e)
         {
-            InitializeControls();
+           
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
@@ -34,13 +36,14 @@ namespace putio
             Properties.Settings.Default.OAuthToken = textBoxToken.Text;
             Properties.Settings.Default.DownloadDirectory = textBoxDownloadPath.Text;
             Properties.Settings.Default.ShowToolTips = checkBoxShowToolTips.Checked;
+            Properties.Settings.Default.ParallelDownloads = Convert.ToInt32(numericUpDown1.Value);
             Properties.Settings.Default.Save();
             this.Close();
         }
 
         private void buttonGetToken_Click(object sender, EventArgs e)
         {
-            string url = "https://api.put.io/v2/oauth2/authenticate?client_id=3504&response_type=oob&redirect_uri=";
+            string url = "https://api.put.io/v2/oauth2/authenticate?client_id=3510&response_type=oob&redirect_uri=";
             FormPutioAuthWeb authweb = new FormPutioAuthWeb();
             Uri uri = new Uri(url);
             authweb.labelAddress.Text = url;

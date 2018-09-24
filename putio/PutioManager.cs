@@ -28,7 +28,7 @@ namespace putio
             string urlGetListFiles = string.Format(urlPutioApi + "files/list?{0}={1}&{2}={3}",
                 "parent_id", inStrParentId,
                 "oauth_token", oAuthToken);
-            Console.WriteLine("[LIST FILES URL] " + urlGetListFiles);
+            //Console.WriteLine("[LIST FILES URL] " + urlGetListFiles);
             string response = await httpClient.GetStringAsync(urlGetListFiles);
             return (JArray)JObject.Parse(response)["files"];
         }
@@ -43,7 +43,7 @@ namespace putio
             string urlGetListFiles = string.Format(urlPutioApi + "files/{0}?{1}={2}",
                 inStrParentId,
                 "oauth_token", oAuthToken);
-            Console.WriteLine("[FILE URL] " + urlGetListFiles);
+            //Console.WriteLine("[FILE URL] " + urlGetListFiles);
             string response = await httpClient.GetStringAsync(urlGetListFiles);
             return (JObject)JObject.Parse(response)["file"];
         }
@@ -93,7 +93,7 @@ namespace putio
         {
             string urlGetZipFiles = string.Format(urlPutioApi + "zips/list?{0}={1}",
                 "oauth_token", oAuthToken);
-            Console.WriteLine("[LIST ZIPS URL] " + urlGetZipFiles);
+            //Console.WriteLine("[LIST ZIPS URL] " + urlGetZipFiles);
             string response = await httpClient.GetStringAsync(urlGetZipFiles);
             return (JArray)JObject.Parse(response)["files"];
 
@@ -104,7 +104,7 @@ namespace putio
             string urlGetZipFile = string.Format(urlPutioApi + "zips/{0}?{1}={2}",
                 inStrZipID,
                 "oauth_token", oAuthToken);
-            Console.WriteLine("[ZIP URL] " + urlGetZipFile);
+            //Console.WriteLine("[ZIP URL] " + urlGetZipFile);
             string response = await httpClient.GetStringAsync(urlGetZipFile);
             return JObject.Parse(response);
         }

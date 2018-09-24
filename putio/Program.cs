@@ -20,7 +20,6 @@ namespace putio
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            ServicePointManager.DefaultConnectionLimit = Properties.Settings.Default.ConcurrentDownloads;
             Application.Run(new FormPutioManager());
         }
 

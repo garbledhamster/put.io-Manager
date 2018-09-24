@@ -22,30 +22,96 @@ namespace putio
         {
             InitializeComponent();
             InitializeControls();
+            InitializeAsync();
         }
 
         private void InitializeControls()
         {
-            rootnode = treeViewPutioFiles.Nodes.Add("put.io files");
-            rootnode.Tag = "root";
             OAuthToken = Properties.Settings.Default.OAuthToken;
             filemgr = new PutioManager(OAuthToken);
+            treeViewPutioFiles.Nodes.Clear();
+            rootnode = treeViewPutioFiles.Nodes.Add("put.io files");
+            rootnode.Tag = "root";
+            treeViewPutioFiles.ShowNodeToolTips = Properties.Settings.Default.ShowToolTips;
+        }
+
+        private void InitializeAsync()
+        {
+            for (int i = 0; i < ParallelDownloads; i++)
+            {
+                WebClient client = new WebClient();
+                client.DownloadProgressChanged += WebClient_DownloadProgressChanged;
+                client.DownloadFileCompleted += WebClient_DownloadDataCompleted;
+                WebClients.Add(client);
+            }
             treeViewPutioFiles.NodeMouseClick += (sender, args) => treeViewPutioFiles.SelectedNode = args.Node;
         }
 
         public string OAuthToken;
         public string OAuthParamater;
+        public string DownloadPath;
         public TreeNode rootnode;
         PutioManager filemgr;
-        
+        int ParallelDownloads = Properties.Settings.Default.ParallelDownloads;
+
         private const string urlPutioApi = "https://api.put.io/v2/";
+        List<WebClient> WebClients = new List<WebClient>();
+        Queue<FileDownload> FileDownloads = new Queue<FileDownload>();
+
+        // Initalizers
+
+        private void CstripDownload_Click(object sender, EventArgs e, FileDownload file)
+        {
+            if (file.PrimaryWebClient.IsBusy)
+            {
+                Console.WriteLine("download canceled");
+                file.PrimaryWebClient.CancelAsync();
+            }
+        }
+
+        private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            var FileDownload = e.UserState as FileDownload;
+            DataGridViewRow FileQueRow = FileDownload.RowInQue;
+            
+            string bytesrecieved = ((e.BytesReceived / 1024d) / 1024d).ToString("0.0");
+            string totalbytes = ((e.TotalBytesToReceive / 1024d) / 1024d).ToString("0.0");
+            UpdateCellValue(FileQueRow, "ColumnStatus", string.Format("{0} Mb / {1} Mb", bytesrecieved, totalbytes));
+        }
+
+        private void WebClient_DownloadDataCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            var FileDownload = e.UserState as FileDownload;
+            DataGridViewRow FileQueRow = FileDownload.RowInQue;
+
+            if (e.Cancelled == true)
+                UpdateCellValue(FileQueRow, "ColumnStatus", "Canceled");
+            else if (e.Error != null)
+                UpdateCellValue(FileQueRow, "ColumnStatus", "Error");
+            else
+                UpdateCellValue(FileQueRow, "ColumnStatus", "Complete");
+
+            UpdateCellValue(FileQueRow, "ColumnCompleted", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"));
+            DownloadFile();
+        }
 
         // Form Controls
 
         private async void FormPutioManager_Load(object sender, EventArgs e)
         {
-            treeViewPutioFiles.ShowNodeToolTips = Properties.Settings.Default.ShowToolTips;
-            UpdateTreeView(await filemgr.List("0"));
+            try
+            {
+                UpdateTreeView(await filemgr.List("0"));
+            }
+            catch 
+            {
+                MessageBox.Show("the token provided did not work");
+            }
+        }
+
+        private void FormPutioManager_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
         }
 
         private async void treeViewPutioFiles_BeforeExpand(object sender, TreeViewCancelEventArgs e)
@@ -114,14 +180,21 @@ namespace putio
             string filename = fileProperties["name"].ToString();
             string filetype = fileProperties["file_type"].ToString();
             string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+            string status = "Not Started";
             Console.WriteLine(filename + " started downloading at " + started);
             string path = Properties.Settings.Default.DownloadDirectory + @"\" + filename;
             Uri uriDownloadFile = new Uri(urlPutioApi + "files/" + id + "/download?oauth_token=" + OAuthToken);
-            dataGridView1.Rows.Add(filename, filetype, started, "", "");
-
+            dataGridView1.Rows.Add(filename, filetype, started, "", status);
             DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
-            newDownloadRow.Tag = id;
-            DownloadFile(uriDownloadFile, path, newDownloadRow);
+            newDownloadRow.Tag = uriDownloadFile;
+
+            FileDownload dlfile = new FileDownload(uriDownloadFile, path, newDownloadRow);
+            dlfile.FileDownloaded = false;
+            dlfile.RowInQue.Tag = dlfile;
+
+            FileDownloads.Enqueue(dlfile);
+            Console.WriteLine("Queue Lengths = " + FileDownloads.Count);
+            DownloadFile();
 
         }
 
@@ -131,34 +204,39 @@ namespace putio
             string id = selectednode.Tag.ToString();
             var createzip_response = await filemgr.CreateZip(id);
             string zipid = JObject.Parse(createzip_response)["zip_id"].ToString();
+            string status = "Not Started";
+            string zipstatus = "";
+            //Console.WriteLine("ZipId=" + zipid);
 
-            Console.WriteLine("ZipId=" + zipid);
-
-            string status = null;
             Uri uriZipFile = null;
 
             do
             {
                 var zip_properties = await filemgr.GetZip(zipid);
                 //Console.WriteLine(zip_properties);
-                string zipstatus = zip_properties["zip_status"].ToString();
+                zipstatus = zip_properties["zip_status"].ToString();
                 //Console.WriteLine(zipstatus);
                 if (zipstatus == "DONE")
                 {
-                    status = zipstatus;
                     uriZipFile= new Uri(zip_properties["url"].ToString());
                 }
 
-            } while (status != "DONE");
+            } while (zipstatus != "DONE");
 
             string filename = selectednode.Text + ".zip";
             string filetype = "ZIP";
             string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
             string path = Properties.Settings.Default.DownloadDirectory + @"\" + filename;
-            dataGridView1.Rows.Add(filename, filetype, started, "", "");
+            dataGridView1.Rows.Add(filename, filetype, started, "", status);
             DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
-            DownloadFile(uriZipFile, path, newDownloadRow);
+            
+            FileDownload dlfile = new FileDownload(uriZipFile, path, newDownloadRow);
+            dlfile.FileDownloaded = false;
+            dlfile.RowInQue.Tag = dlfile;
 
+            FileDownloads.Enqueue(dlfile);
+            Console.WriteLine("Queue Lengths = " + FileDownloads.Count);
+            DownloadFile();
         }
 
         private async void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -185,14 +263,21 @@ namespace putio
 
         }
 
-        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var Settings = new FormPutioSettings();
             Settings.StartPosition = FormStartPosition.CenterParent;
             Settings.ShowDialog();
 
-            treeViewPutioFiles.ShowNodeToolTips = Properties.Settings.Default.ShowToolTips;
+            InitializeControls();
+            treeViewPutioFiles.SelectedNode = treeViewPutioFiles.Nodes[0];
+            UpdateTreeView(await filemgr.List("0"));
+            filemgr = new PutioManager(OAuthToken);
+        }
 
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         // Methods and Modules
@@ -226,20 +311,6 @@ namespace putio
             }
         }
 
-        private void DownloadFile(Uri inUriDownloadFile, string inStrFilePath, DataGridViewRow inDgvrNewDownload)
-        {
-
-            using (WebClient wc = new WebClient())
-            {
-                ContextMenuStrip cstrip = new ContextMenuStrip();
-                cstrip.Items.Add("Cancel").Click += (sender, e) => CstripDownload_Click(sender, e, wc, inDgvrNewDownload);
-                inDgvrNewDownload.ContextMenuStrip = cstrip;
-                wc.DownloadProgressChanged += WebClient_DownloadProgressChanged;
-                wc.DownloadFileCompleted += WebClient_DownloadDataCompleted;
-                wc.DownloadFileAsync(inUriDownloadFile, inStrFilePath, inDgvrNewDownload);
-            }
-        }
-
         private void UpdateCellValue(DataGridViewRow inDgvrParentOfCell, string inStrColumnName, string inStrValue)
         {
             inDgvrParentOfCell.Cells[inStrColumnName].Value = inStrValue;
@@ -250,48 +321,56 @@ namespace putio
             toolStripStatusLabel1.Text = inStrStatusText;
         }
 
-        // Initalizers
-
-        private void CstripDownload_Click(object sender, EventArgs e, WebClient wc, DataGridViewRow dgvr)
+        private void DownloadFile()
         {
-            if (wc.IsBusy)
+            if (FileDownloads.Any())
             {
-                wc.CancelAsync();
-            }
-        }
-      
-        private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            DataGridViewRow newDownloadRow = e.UserState as DataGridViewRow;
-            string bytesrecieved = ((e.BytesReceived / 1024d) / 1024d).ToString("0.00");
-            string totalbytes = ((e.TotalBytesToReceive / 1024d) / 1024d).ToString("0.00");
-            UpdateCellValue(newDownloadRow, "ColumnStatus", string.Format("{0} mb / {1} mb", bytesrecieved, totalbytes ));
-        }
+                foreach (WebClient wc in WebClients)
+                {
+                    if (!wc.IsBusy)
+                    {
+                        var nextItem = FileDownloads.Dequeue();
+                        nextItem.RowInQue.Cells["ColumnStatus"].Value = "Queued";
+                        Console.WriteLine("started looking at file downloads");
+                        Console.WriteLine("looking for a open webclient");
+                        Console.WriteLine("open webclient found");
+                        nextItem.PrimaryWebClient = wc;
 
-        private void WebClient_DownloadDataCompleted(object sender, AsyncCompletedEventArgs e)
-        {
-            DataGridViewRow newDownloadRow = e.UserState as DataGridViewRow;
-            if (e.Cancelled == true)
-            {
-                UpdateCellValue(newDownloadRow, "ColumnStatus", "Canceled");
-                return;
-            }
-            if (e.Error != null)
-            {
-                UpdateCellValue(newDownloadRow, "ColumnStatus", "Error");
-                return;
-            }
+                        ContextMenuStrip cstrip = new ContextMenuStrip();
+                        cstrip.Items.Add("Cancel").Click += (s, e1) => CstripDownload_Click(s, e1, nextItem);
+                        nextItem.RowInQue.ContextMenuStrip = cstrip;
 
-            UpdateCellValue(newDownloadRow, "ColumnCompleted", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"));
-            UpdateCellValue(newDownloadRow, "ColumnStatus", "Complete");
+                        wc.DownloadFileAsync(nextItem.DownloadLink, nextItem.FilePath, nextItem);
+                        return;
+                    }
+                }
+            }
+            return;
         }
-
 
         // test button!
 
         private void testToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ServicePointManager.DefaultConnectionLimit = Properties.Settings.Default.ConcurrentDownloads;
+
         }
+
+        // internal classes
+
+        internal class FileDownload
+        {
+            public readonly Uri DownloadLink;
+            public readonly string FilePath;
+            public readonly DataGridViewRow RowInQue;
+            public bool FileDownloaded;
+            public WebClient PrimaryWebClient;
+            public FileDownload(Uri inUriDownloadLink, string inStrFilePath, DataGridViewRow inDgvrRowInQue)
+            {
+                DownloadLink = inUriDownloadLink;
+                FilePath = inStrFilePath;
+                RowInQue = inDgvrRowInQue;
+            }
+        }
+
     }
 }

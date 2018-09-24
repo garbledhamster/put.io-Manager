@@ -66,12 +66,12 @@ namespace putio.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public int ConcurrentDownloads {
+        public int ParallelDownloads {
             get {
-                return ((int)(this["ConcurrentDownloads"]));
+                return ((int)(this["ParallelDownloads"]));
             }
             set {
-                this["ConcurrentDownloads"] = value;
+                this["ParallelDownloads"] = value;
             }
         }
     }
