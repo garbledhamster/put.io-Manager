@@ -34,7 +34,6 @@ namespace putio
             rootnode.Tag = "root";
             treeViewPutioFiles.ShowNodeToolTips = Properties.Settings.Default.ShowToolTips;
             treeViewPutioFiles.SelectedNode = treeViewPutioFiles.Nodes[0];
-            filemgr = new PutioManager(OAuthToken);
         }
 
         private void InitializeAsync()
@@ -47,7 +46,6 @@ namespace putio
                 WebClients.Add(client);
             }
             treeViewPutioFiles.NodeMouseClick += (sender, args) => treeViewPutioFiles.SelectedNode = args.Node;
-
         }
 
         public string OAuthToken;
@@ -60,45 +58,49 @@ namespace putio
         private const string urlPutioApi = "https://api.put.io/v2/";
         List<WebClient> WebClients = new List<WebClient>();
         Queue<PutioFile> FileDownloads = new Queue<PutioFile>();
+        List<BackgroundWorker> TimeKeepers = new List<BackgroundWorker>();
 
         // Initalizers
 
         private void CstripDownload_Click(object sender, EventArgs e, PutioFile file)
         {
-            if (file.PrimaryWebClient.IsBusy)
+            if (file.webcilent.IsBusy)
             {
                 Console.WriteLine("download canceled");
-                file.PrimaryWebClient.CancelAsync();
+                file.webcilent.CancelAsync();
             }
         }
 
         private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             var FileDownload = e.UserState as PutioFile;
-            DataGridViewRow FileQueRow = FileDownload.RowInQue;
-            
+            DataGridViewRow FileQueRow = FileDownload.rowinque;
             string bytesrecieved = ((e.BytesReceived / 1024d) / 1024d).ToString("0.0");
             string totalbytes = ((e.TotalBytesToReceive / 1024d) / 1024d).ToString("0.0");
-            UpdateCellValue(FileQueRow, "ColumnStatus", string.Format("{0} Mb / {1} Mb", bytesrecieved, totalbytes));
+            UpdateCellValue(FileQueRow, "ColumnStatus", string.Format("{0} Mb / {1} Mb ({2} Mb/s)", bytesrecieved, totalbytes, bytesrecieved));
         }
 
         private void WebClient_DownloadDataCompleted(object sender, AsyncCompletedEventArgs e)
         {
             var FileDownload = e.UserState as PutioFile;
-            DataGridViewRow FileQueRow = FileDownload.RowInQue;
+            DataGridViewRow FileQueRow = FileDownload.rowinque;
 
             if (e.Cancelled == true)
+            {
                 UpdateCellValue(FileQueRow, "ColumnStatus", "Canceled");
+                File.Delete(FileDownload.download_path);
+            }
             else if (e.Error != null)
+            {
                 UpdateCellValue(FileQueRow, "ColumnStatus", "Error");
+                File.Delete(FileDownload.download_path);
+            }
             else
             {
                 UpdateCellValue(FileQueRow, "ColumnStatus", "Complete");
                 if (Properties.Settings.Default.DeleteAfterDownload)
                     DeleteFile(FileDownload);
             }
-            
-
             UpdateCellValue(FileQueRow, "ColumnCompleted", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"));
             DownloadFile();
         }
@@ -109,7 +111,7 @@ namespace putio
         {
             try
             {
-                UpdateTreeView(await filemgr.List("0"));
+                UpdateTreeView(await filemgr.List("0"), rootnode);
                 var response = await filemgr.AccountInfo();
                 UpdateStatusText(string.Format("Connected Account: " + response["username"].ToString()));
             }
@@ -124,95 +126,40 @@ namespace putio
 
         }
 
-        private async void treeViewPutioFiles_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
-            treeViewPutioFiles.SelectedNode = e.Node;
-            if (treeViewPutioFiles.SelectedNode != rootnode)
-            {
-                JArray files = await filemgr.List((treeViewPutioFiles.SelectedNode.Tag as PutioFile).FileID);
-                treeViewPutioFiles.SelectedNode.Nodes.Clear();
-                UpdateTreeView(files);
-            }
-        }
-
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
             DeleteFile(selectedNode.Tag as PutioFile);
         }
 
-        private async void downloadToolStripMenuItem_Click(object sender, EventArgs e)
+        // Menu Strip
+
+        private void downloadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
-            var putiofile = selectedNode.Tag as PutioFile;
-
-            string id = putiofile.FileID;
-            JObject fileProperties = await filemgr.Get(id);
-            string filename = fileProperties["name"].ToString();
-            string filetype = fileProperties["file_type"].ToString();
-            string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
-            string status = "Not Started";
-            Console.WriteLine(filename + " started downloading at " + started);
-            string path = Properties.Settings.Default.DownloadDirectory + @"\" + filename;
-            Uri uriDownloadFile = new Uri(urlPutioApi + "files/" + id + "/download?oauth_token=" + OAuthToken);
-            dataGridView1.Rows.Add(filename, filetype, started, "", status);
-            DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
-            newDownloadRow.Tag = uriDownloadFile;
-
-            putiofile.DownloadLink = uriDownloadFile;
-            putiofile.FilePath = path;
-            putiofile.RowInQue = newDownloadRow;
-            putiofile.FileDownloaded = false;
-
-            FileDownloads.Enqueue(putiofile);
-            Console.WriteLine("Queue Lengths = " + FileDownloads.Count);
-            DownloadFile();
-
+            var putiofile = treeViewPutioFiles.SelectedNode.Tag as PutioFile;
+            putiofile.downloadlink = new Uri(urlPutioApi + "files/" + putiofile.id + "/download?oauth_token=" + OAuthToken);
+            QueueDownload(putiofile);
         }
 
         private async void zipDownloadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
-            var putiofile = selectedNode.Tag as PutioFile;
+            var selectedfile = treeViewPutioFiles.SelectedNode.Tag as PutioFile;
 
-            string id = putiofile.FileID;
-            var createzip_response = await filemgr.CreateZip(id);
-            string zipid = JObject.Parse(createzip_response)["zip_id"].ToString();
-            string status = "Not Started";
             string zipstatus = "";
-            //Console.WriteLine("ZipId=" + zipid);
-
-            Uri uriZipFile = null;
+            var createzip_response = await filemgr.CreateZip(selectedfile.id);
+            string zipid = JObject.Parse(createzip_response)["zip_id"].ToString();
+            PutioFile zipfile = new PutioFile(zipid, selectedfile.name + ".zip");
+            zipfile.file_type = "ZIP";
 
             do
             {
                 var zip_properties = await filemgr.GetZip(zipid);
-                //Console.WriteLine(zip_properties);
                 zipstatus = zip_properties["zip_status"].ToString();
-                //Console.WriteLine(zipstatus);
                 if (zipstatus == "DONE")
-                {
-                    uriZipFile= new Uri(zip_properties["url"].ToString());
-                }
-
+                    zipfile.downloadlink = new Uri(zip_properties["url"].ToString());
             } while (zipstatus != "DONE");
 
-            string filename = selectedNode.Text + ".zip";
-            string filetype = "ZIP";
-            string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
-            string path = Properties.Settings.Default.DownloadDirectory + @"\" + filename;
-            dataGridView1.Rows.Add(filename, filetype, started, "", status);
-            DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
-
-            putiofile.DownloadLink = uriZipFile;
-            putiofile.FilePath = path;
-            putiofile.RowInQue = newDownloadRow;
-            putiofile.FileDownloaded = false;
-
-            FileDownloads.Enqueue(putiofile);
-
-            Console.WriteLine("Queue Lengths = " + FileDownloads.Count);
-            DownloadFile();
+            QueueDownload(zipfile);
         }
 
         private async void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -246,7 +193,24 @@ namespace putio
             Settings.ShowDialog();
 
             InitializeControls();
-            UpdateTreeView(await filemgr.List("0"));
+            UpdateTreeView(await filemgr.List("0"), treeViewPutioFiles.SelectedNode);
+        }
+
+        // Tool Strip
+
+        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            treeViewPutioFiles.SelectedNode.BeginEdit();
+        }
+
+        private void autoDownloadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeViewPutioFiles.SelectedNode != treeViewPutioFiles.Nodes[0])
+            {
+                TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
+                var putioFile = selectedNode.Tag as PutioFile;
+                treeViewAutoDownloads.Nodes.Add(putioFile.name).Tag = putioFile;
+            }
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -261,45 +225,87 @@ namespace putio
                 Process.Start(dirDownload);
         }
 
+        // Tree View Putio Files
+
         private async void treeViewPutioFiles_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            TreeNode selectednode = treeViewPutioFiles.SelectedNode;
-            string id = selectednode.Tag.ToString();
-            var rename_response = await filemgr.Rename(id, e.Label);
+            var rename_response = await filemgr.Rename((e.Node.Tag as PutioFile).id, e.Label);
+            (e.Node.Tag as PutioFile).name = e.Label;
         }
 
-        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void treeViewPutioFiles_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-            treeViewPutioFiles.SelectedNode.BeginEdit();
-        }
+            treeViewPutioFiles.SelectedNode = e.Node;
+            PutioFile file = e.Node.Tag as PutioFile;
 
-        private void autoDownloadToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (treeViewPutioFiles.SelectedNode != treeViewPutioFiles.Nodes[0])
-            {
-                TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
-                var putioFile = selectedNode.Tag as PutioFile;
-                treeViewAutoDownloads.Nodes.Add(putioFile.FileName).Tag = putioFile;
-            }
+            if (e.Node != rootnode)
+                UpdateTreeView(await filemgr.List(file.id), e.Node);
+            else
+                UpdateTreeView(await filemgr.List("0"), e.Node);
         }
 
         // Methods and Modules
 
-        private void UpdateTreeView(JArray inJArrFiles)
+        private void DownloadFile()
         {
-            TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
+            if (FileDownloads.Any())
+            {
+                foreach (WebClient wc in WebClients)
+                {
+                    if (!wc.IsBusy)
+                    {
+                        var putiofile = FileDownloads.Dequeue();
+                        putiofile.rowinque.Cells["ColumnStatus"].Value = "Queued";
+                        putiofile.webcilent = wc;
+
+                        ContextMenuStrip cstrip = new ContextMenuStrip();
+                        cstrip.Items.Add("Cancel").Click += (s, e1) => CstripDownload_Click(s, e1, putiofile);
+                        putiofile.rowinque.ContextMenuStrip = cstrip;
+                        wc.DownloadFileAsync(putiofile.downloadlink, putiofile.download_path, putiofile);
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+
+        private void QueueDownload(PutioFile putiofile)
+        {
+            string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+            string path = Properties.Settings.Default.DownloadDirectory + @"\" + putiofile.name;
+
+            dataGridView1.Rows.Add(putiofile.name, putiofile.file_type, started, "", "Not Started");
+            DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
+
+            putiofile.rowinque = newDownloadRow;
+            putiofile.download_path = path;
+
+            FileDownloads.Enqueue(putiofile);
+            DownloadFile();
+        }
+
+        private void UpdateTreeView(JArray inJArrFiles, TreeNode node)
+        {
+            node.Nodes.Clear();
             foreach (JObject file in inJArrFiles)
             {
                 string message = null;
-                var putiofile = new PutioFile(file["name"].ToString(), file["id"].ToString());
-                TreeNode newnode = selectedNode.Nodes.Add(file["name"].ToString());
+
+                var putiofile = new PutioFile(file["id"].ToString(), file["name"].ToString());
+                putiofile.parent_id = file["parent_id"].ToString();
+                putiofile.content_type = file["content_type"].ToString();
+                putiofile.file_type = file["file_type"].ToString();
+
+                PrintPutioProperties(putiofile);
+
+                TreeNode newnode = node.Nodes.Add(putiofile.name);
                 newnode.Tag = putiofile;
-                putiofile.FileNode = newnode;
+                putiofile.file = newnode;
+
                 // set tooltip node text to the files properties
                 foreach (var property in file)
-                {
                     message += property.Key.ToString().ToLower() + ": " + property.Value.ToString().ToLower() + Environment.NewLine;
-                }
+
 
                 newnode.ToolTipText = message;
                 if (file["file_type"].ToString() != "FOLDER")
@@ -308,9 +314,7 @@ namespace putio
                     newnode.ImageIndex = 2;
                 }
                 else
-                {
                     newnode.Nodes.Add("Loading...");
-                }
 
             }
         }
@@ -325,38 +329,31 @@ namespace putio
             toolStripStatusLabel1.Text = inStrStatusText;
         }
 
-        private void DownloadFile()
-        {
-            if (FileDownloads.Any())
-            {
-                foreach (WebClient wc in WebClients)
-                {
-                    if (!wc.IsBusy)
-                    {
-                        var nextItem = FileDownloads.Dequeue();
-                        nextItem.RowInQue.Cells["ColumnStatus"].Value = "Queued";
-                        nextItem.PrimaryWebClient = wc;
-
-                        ContextMenuStrip cstrip = new ContextMenuStrip();
-                        cstrip.Items.Add("Cancel").Click += (s, e1) => CstripDownload_Click(s, e1, nextItem);
-                        nextItem.RowInQue.ContextMenuStrip = cstrip;
-
-                        wc.DownloadFileAsync(nextItem.DownloadLink, nextItem.FilePath, nextItem);
-                        return;
-                    }
-                }
-            }
-            return;
-        }
-
         private async void DeleteFile(PutioFile inPutioFile)
         {
-            var deletemessage = await filemgr.Delete(inPutioFile.FileID);
+            var deletemessage = await filemgr.Delete(inPutioFile.id);
             string status = JObject.Parse(deletemessage)["status"].ToString();
             if (status == "OK")
             {
-                treeViewPutioFiles.Nodes.Remove(inPutioFile.FileNode);
+                treeViewPutioFiles.Nodes.Remove(inPutioFile.file);
             }
+        }
+
+        private void PrintPutioProperties(PutioFile putiofile)
+        {
+            Console.WriteLine("===================");
+            Console.WriteLine("filename: " + putiofile.name);
+            Console.WriteLine("fileid: " + putiofile.id);
+            Console.WriteLine("parent_id: " + putiofile.parent_id);
+            Console.WriteLine("filetype: " + putiofile.file_type);
+        }
+
+        private void ExportDataGridView()
+        {
+            var dt = new DataTable();
+            dt = (DataTable)dataGridView1.DataSource;
+            dt.TableName = "Download Queue";
+            dt.WriteXml(Application.StartupPath + @"\DownloadQueue.xml", true);
         }
 
         // test button!
@@ -365,29 +362,7 @@ namespace putio
         {
             TreeNode selectednode = treeViewPutioFiles.SelectedNode;
             var putiofile = selectednode.Tag as PutioFile;
-            Console.WriteLine(putiofile.DownloadLink);
-        }
-
-        // internal classes
-
-        internal class PutioFile
-        {
-
-            public readonly string FileName;
-            public readonly string FileID;
-            public string FilePath;
-            public bool FileDownloaded;
-            public Uri DownloadLink;
-            public DataGridViewRow RowInQue;
-            public TreeNode FileNode;
-            public WebClient PrimaryWebClient;
-
-            public PutioFile(string inStrFileName, string inStrFileID)
-            {
-                FileName = inStrFileName;
-                FileID = inStrFileID;
-            }
-
+            Console.WriteLine(putiofile.downloadlink);
         }
 
     }

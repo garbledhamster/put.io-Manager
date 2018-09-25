@@ -32,10 +32,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Flurl, Version=2.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\source\repos\putio\putio\libs\Flurl.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Flurl.Http, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\source\repos\putio\putio\libs\Flurl.Http.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\source\repos\putio\putio\libs\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="PutioManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\PutioManager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,13 +77,6 @@
     <Compile Include="FormPutioProperties.Designer.cs">
       <DependentUpon>FormPutioProperties.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormPutioRename.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormPutioRename.Designer.cs">
-      <DependentUpon>FormPutioRename.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PutioManager.cs" />
     <Compile Include="FormPutioAuthWeb.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -89,14 +97,12 @@
     <Compile Include="FormPutioSettings.Designer.cs">
       <DependentUpon>FormPutioSettings.cs</DependentUpon>
     </Compile>
+    <Compile Include="PutioFile.cs" />
     <EmbeddedResource Include="DialogBox.resx">
       <DependentUpon>DialogBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormPutioProperties.resx">
       <DependentUpon>FormPutioProperties.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormPutioRename.resx">
-      <DependentUpon>FormPutioRename.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -142,6 +148,9 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="lib\PutioManager.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

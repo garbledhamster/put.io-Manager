@@ -53,6 +53,7 @@
             this.Padding = new System.Windows.Forms.Padding(8);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "FormPutioProperties";
+            this.Load += new System.EventHandler(this.FormPutioProperties_Load);
             this.Click += new System.EventHandler(this.FormPutioProperties_Click);
             this.ResumeLayout(false);
 

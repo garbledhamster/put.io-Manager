@@ -21,5 +21,10 @@ namespace putio
         {
             this.Close();
         }
+
+        private void FormPutioProperties_Load(object sender, EventArgs e)
+        {
+            Console.WriteLine(labelProperties.Text);
+        }
     }
 }
