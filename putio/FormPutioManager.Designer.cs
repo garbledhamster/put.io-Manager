@@ -61,6 +61,8 @@
             this.ColumnStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.contextMenuStripAutoDownload = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripMain.SuspendLayout();
             this.statusStripMain.SuspendLayout();
             this.contextMenuStripPutioFiles.SuspendLayout();
@@ -75,6 +77,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.contextMenuStripAutoDownload.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStripMain
@@ -267,6 +270,7 @@
             // treeViewAutoDownloads
             // 
             this.treeViewAutoDownloads.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.treeViewAutoDownloads.ContextMenuStrip = this.contextMenuStripAutoDownload;
             this.treeViewAutoDownloads.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeViewAutoDownloads.FullRowSelect = true;
             this.treeViewAutoDownloads.HideSelection = false;
@@ -374,6 +378,20 @@
             this.splitContainer1.SplitterDistance = 211;
             this.splitContainer1.TabIndex = 6;
             // 
+            // contextMenuStripAutoDownload
+            // 
+            this.contextMenuStripAutoDownload.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeToolStripMenuItem});
+            this.contextMenuStripAutoDownload.Name = "contextMenuStripAutoDownload";
+            this.contextMenuStripAutoDownload.Size = new System.Drawing.Size(118, 26);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeToolStripMenuItem.Text = "Remove";
+            this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
+            // 
             // FormPutioManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -406,6 +424,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.contextMenuStripAutoDownload.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -444,6 +463,8 @@
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.SplitContainer splitContainerFiles;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStripAutoDownload;
+        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
     }
 }
 

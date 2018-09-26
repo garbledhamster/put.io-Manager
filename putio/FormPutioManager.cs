@@ -29,9 +29,11 @@ namespace putio
         {
             OAuthToken = Properties.Settings.Default.OAuthToken;
             filemgr = new PutioManager(OAuthToken);
+
             treeViewPutioFiles.Nodes.Clear();
-            rootnode = treeViewPutioFiles.Nodes.Add("put.io files");
-            rootnode.Tag = "root";
+            rootnode = treeViewPutioFiles.Nodes.Add("putio files");
+            rootnode.Tag = "putio";
+
             treeViewPutioFiles.ShowNodeToolTips = Properties.Settings.Default.ShowToolTips;
             treeViewPutioFiles.SelectedNode = treeViewPutioFiles.Nodes[0];
         }
@@ -77,7 +79,7 @@ namespace putio
             DataGridViewRow FileQueRow = FileDownload.rowinque;
             string bytesrecieved = ((e.BytesReceived / 1024d) / 1024d).ToString("0.0");
             string totalbytes = ((e.TotalBytesToReceive / 1024d) / 1024d).ToString("0.0");
-            UpdateCellValue(FileQueRow, "ColumnStatus", string.Format("{0} Mb / {1} Mb ({2} Mb/s)", bytesrecieved, totalbytes, bytesrecieved));
+            UpdateCellValue(FileQueRow, "ColumnStatus", string.Format("{0} Mb / {1} Mb", bytesrecieved, totalbytes));
         }
 
         private void WebClient_DownloadDataCompleted(object sender, AsyncCompletedEventArgs e)
@@ -196,6 +198,12 @@ namespace putio
             UpdateTreeView(await filemgr.List("0"), treeViewPutioFiles.SelectedNode);
         }
 
+        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeViewAutoDownloads.SelectedNode != null)
+                treeViewAutoDownloads.SelectedNode.Remove();
+        }
+
         // Tool Strip
 
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
@@ -229,8 +237,11 @@ namespace putio
 
         private async void treeViewPutioFiles_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            var rename_response = await filemgr.Rename((e.Node.Tag as PutioFile).id, e.Label);
-            (e.Node.Tag as PutioFile).name = e.Label;
+            if (e.Label != null)
+            {                
+                var rename_response = await filemgr.Rename((e.Node.Tag as PutioFile).id, e.Label);
+                (e.Node.Tag as PutioFile).name = e.Label;
+            }
         }
 
         private async void treeViewPutioFiles_BeforeExpand(object sender, TreeViewCancelEventArgs e)
@@ -296,7 +307,7 @@ namespace putio
                 putiofile.content_type = file["content_type"].ToString();
                 putiofile.file_type = file["file_type"].ToString();
 
-                PrintPutioProperties(putiofile);
+                //PrintPutioProperties(putiofile);
 
                 TreeNode newnode = node.Nodes.Add(putiofile.name);
                 newnode.Tag = putiofile;

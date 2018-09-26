@@ -78,10 +78,18 @@ namespace putio
             object query = new[] { "oauth_token="+oAuthToken };
             object post = new { file_id=inStrFileId,name=inStrName };
 
-            var response = await urlPutioApi.AppendPathSegment(pathsegment)
-                .SetQueryParams(query)
-                .PostJsonAsync(post);
-            return await response.Content.ReadAsStringAsync();
+            string CurrentName = (await Get(inStrFileId)).ToString();
+
+            Console.WriteLine("currentname=" + CurrentName + "; newname=" + inStrName);
+
+            if (inStrName != CurrentName)
+            {
+                var response = await urlPutioApi.AppendPathSegment(pathsegment)
+                    .SetQueryParams(query)
+                    .PostJsonAsync(post);
+                return await response.Content.ReadAsStringAsync();
+            }
+            return null;
         }
 
         public async Task<string> CreateZip(string inStrFileIds)

@@ -33,13 +33,13 @@
             this.textBoxToken = new System.Windows.Forms.TextBox();
             this.buttonSave = new System.Windows.Forms.Button();
             this.groupBoxDownloads = new System.Windows.Forms.GroupBox();
+            this.checkBoxDeleteAfterDownload = new System.Windows.Forms.CheckBox();
             this.labelParallelDownloads = new System.Windows.Forms.Label();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.buttonDownloadPathChange = new System.Windows.Forms.Button();
             this.textBoxDownloadPath = new System.Windows.Forms.TextBox();
             this.checkBoxShowToolTips = new System.Windows.Forms.CheckBox();
             this.groupBoxGeneral = new System.Windows.Forms.GroupBox();
-            this.checkBoxDeleteAfterDownload = new System.Windows.Forms.CheckBox();
             this.groupBoxAuthentication.SuspendLayout();
             this.groupBoxDownloads.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -99,16 +99,28 @@
             this.groupBoxDownloads.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.groupBoxDownloads.Location = new System.Drawing.Point(12, 100);
             this.groupBoxDownloads.Name = "groupBoxDownloads";
-            this.groupBoxDownloads.Size = new System.Drawing.Size(459, 110);
+            this.groupBoxDownloads.Size = new System.Drawing.Size(459, 115);
             this.groupBoxDownloads.TabIndex = 3;
             this.groupBoxDownloads.TabStop = false;
             this.groupBoxDownloads.Text = "Downloads";
+            // 
+            // checkBoxDeleteAfterDownload
+            // 
+            this.checkBoxDeleteAfterDownload.AutoSize = true;
+            this.checkBoxDeleteAfterDownload.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.checkBoxDeleteAfterDownload.Location = new System.Drawing.Point(6, 87);
+            this.checkBoxDeleteAfterDownload.Name = "checkBoxDeleteAfterDownload";
+            this.checkBoxDeleteAfterDownload.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.checkBoxDeleteAfterDownload.Size = new System.Drawing.Size(133, 17);
+            this.checkBoxDeleteAfterDownload.TabIndex = 6;
+            this.checkBoxDeleteAfterDownload.Text = "Delete After Download";
+            this.checkBoxDeleteAfterDownload.UseVisualStyleBackColor = true;
             // 
             // labelParallelDownloads
             // 
             this.labelParallelDownloads.AutoSize = true;
             this.labelParallelDownloads.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.labelParallelDownloads.Location = new System.Drawing.Point(6, 60);
+            this.labelParallelDownloads.Location = new System.Drawing.Point(6, 55);
             this.labelParallelDownloads.Name = "labelParallelDownloads";
             this.labelParallelDownloads.Size = new System.Drawing.Size(97, 13);
             this.labelParallelDownloads.TabIndex = 5;
@@ -117,7 +129,7 @@
             // numericUpDown1
             // 
             this.numericUpDown1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.numericUpDown1.Location = new System.Drawing.Point(109, 58);
+            this.numericUpDown1.Location = new System.Drawing.Point(109, 53);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             10,
             0,
@@ -161,7 +173,7 @@
             // 
             this.checkBoxShowToolTips.AutoSize = true;
             this.checkBoxShowToolTips.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.checkBoxShowToolTips.Location = new System.Drawing.Point(12, 31);
+            this.checkBoxShowToolTips.Location = new System.Drawing.Point(16, 31);
             this.checkBoxShowToolTips.Name = "checkBoxShowToolTips";
             this.checkBoxShowToolTips.Size = new System.Drawing.Size(100, 17);
             this.checkBoxShowToolTips.TabIndex = 4;
@@ -178,17 +190,6 @@
             this.groupBoxGeneral.TabIndex = 5;
             this.groupBoxGeneral.TabStop = false;
             this.groupBoxGeneral.Text = "UI";
-            // 
-            // checkBoxDeleteAfterDownload
-            // 
-            this.checkBoxDeleteAfterDownload.AutoSize = true;
-            this.checkBoxDeleteAfterDownload.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.checkBoxDeleteAfterDownload.Location = new System.Drawing.Point(9, 84);
-            this.checkBoxDeleteAfterDownload.Name = "checkBoxDeleteAfterDownload";
-            this.checkBoxDeleteAfterDownload.Size = new System.Drawing.Size(133, 17);
-            this.checkBoxDeleteAfterDownload.TabIndex = 6;
-            this.checkBoxDeleteAfterDownload.Text = "Delete After Download";
-            this.checkBoxDeleteAfterDownload.UseVisualStyleBackColor = true;
             // 
             // FormPutioSettings
             // 
