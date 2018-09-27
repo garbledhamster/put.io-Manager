@@ -10,12 +10,12 @@ The initial interface is similar with some major adjustments.
 - [x] Downloader
 - [x] Zip Files
 - [x] Transfer Managment
-- [ ] Allow RSS feed reading
 - [ ] Download Scheduler
-- [ ] File Uploader
-- [ ] Cleaner Interface
-- [ ] More Accounts Support
 - [ ] File Sharing
+- [ ] File Uploader
+- [ ] More Accounts Support
+- [ ] Allow RSS feed reading
+- [ ] Cleanup Interface
 - [ ] Better Download Speed Visuals
 
 ### Authentication
