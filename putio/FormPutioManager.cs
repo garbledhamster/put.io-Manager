@@ -13,6 +13,7 @@ using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Diagnostics;
+using PutioApi;
 
 namespace putio
 {
@@ -28,11 +29,16 @@ namespace putio
         private void InitializeControls()
         {
             OAuthToken = Properties.Settings.Default.OAuthToken;
-            filemgr = new PutioManager(OAuthToken);
+
+            filemgr = new Files(OAuthToken);
+            zipmgr = new Zips(OAuthToken);
+            trfrmgr = new Transfers(OAuthToken);
+
+            var root = new PutioFile("0", "putio files");
 
             treeViewPutioFiles.Nodes.Clear();
             rootnode = treeViewPutioFiles.Nodes.Add("putio files");
-            rootnode.Tag = "putio";
+            rootnode.Tag = root;
 
             treeViewPutioFiles.ShowNodeToolTips = Properties.Settings.Default.ShowToolTips;
             treeViewPutioFiles.SelectedNode = treeViewPutioFiles.Nodes[0];
@@ -54,7 +60,9 @@ namespace putio
         public string OAuthParamater;
         public string DownloadPath;
         public TreeNode rootnode;
-        PutioManager filemgr;
+        Files filemgr;
+        Zips zipmgr;
+        Transfers trfrmgr;
         int ParallelDownloads = Properties.Settings.Default.ParallelDownloads;
 
         private const string urlPutioApi = "https://api.put.io/v2/";
@@ -111,11 +119,13 @@ namespace putio
 
         private async void FormPutioManager_Load(object sender, EventArgs e)
         {
+            treeViewPutioFiles.SelectedNode = rootnode;
             try
             {
                 UpdateTreeView(await filemgr.List("0"), rootnode);
                 var response = await filemgr.AccountInfo();
                 UpdateStatusText(string.Format("Connected Account: " + response["username"].ToString()));
+                GetTransfers();
             }
             catch 
             {
@@ -148,14 +158,14 @@ namespace putio
             var selectedfile = treeViewPutioFiles.SelectedNode.Tag as PutioFile;
 
             string zipstatus = "";
-            var createzip_response = await filemgr.CreateZip(selectedfile.id);
+            var createzip_response = await zipmgr.CreateZip(selectedfile.id);
             string zipid = JObject.Parse(createzip_response)["zip_id"].ToString();
             PutioFile zipfile = new PutioFile(zipid, selectedfile.name + ".zip");
             zipfile.file_type = "ZIP";
 
             do
             {
-                var zip_properties = await filemgr.GetZip(zipid);
+                var zip_properties = await zipmgr.GetZip(zipid);
                 zipstatus = zip_properties["zip_status"].ToString();
                 if (zipstatus == "DONE")
                     zipfile.downloadlink = new Uri(zip_properties["url"].ToString());
@@ -204,6 +214,45 @@ namespace putio
                 treeViewAutoDownloads.SelectedNode.Remove();
         }
 
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Clipboard.GetText().ToString().StartsWith("magnet:"))
+            {
+                string url = Clipboard.GetText().ToString();
+                var file = treeViewPutioFiles.SelectedNode.Tag as PutioFile;
+                var option = MessageBox.Show(string.Format("Download {0} to {1}", magnet(url), file.name), "test", MessageBoxButtons.OKCancel);
+        
+                if (option == DialogResult.OK)
+                {
+                    trfrmgr.Add(url, file.id);
+                    GetTransfers();
+                }
+            }
+            else
+                MessageBox.Show("Copy a magnet link and try again", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        }
+
+        private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GetTransfers();
+        }
+
+        private void cleanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private async void refreshToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            TreeNode node = treeViewPutioFiles.SelectedNode;
+
+            var file = treeViewPutioFiles.SelectedNode.Tag as PutioFile;
+            string id = file.id;
+            UpdateTreeView(await filemgr.List(id), treeViewPutioFiles.SelectedNode);
+
+        }
+
         // Tool Strip
 
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
@@ -250,9 +299,10 @@ namespace putio
             PutioFile file = e.Node.Tag as PutioFile;
 
             if (e.Node != rootnode)
+            {
                 UpdateTreeView(await filemgr.List(file.id), e.Node);
-            else
-                UpdateTreeView(await filemgr.List("0"), e.Node);
+            }
+            
         }
 
         // Methods and Modules
@@ -285,8 +335,8 @@ namespace putio
             string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
             string path = Properties.Settings.Default.DownloadDirectory + @"\" + putiofile.name;
 
-            dataGridView1.Rows.Add(putiofile.name, putiofile.file_type, started, "", "Not Started");
-            DataGridViewRow newDownloadRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
+            dataGridViewDownloads.Rows.Add(putiofile.name, putiofile.file_type, started, "", "Not Started");
+            DataGridViewRow newDownloadRow = dataGridViewDownloads.Rows[dataGridViewDownloads.Rows.Count - 1];
 
             putiofile.rowinque = newDownloadRow;
             putiofile.download_path = path;
@@ -317,8 +367,8 @@ namespace putio
                 foreach (var property in file)
                     message += property.Key.ToString().ToLower() + ": " + property.Value.ToString().ToLower() + Environment.NewLine;
 
-
                 newnode.ToolTipText = message;
+
                 if (file["file_type"].ToString() != "FOLDER")
                 {
                     newnode.SelectedImageIndex = 2;
@@ -362,18 +412,62 @@ namespace putio
         private void ExportDataGridView()
         {
             var dt = new DataTable();
-            dt = (DataTable)dataGridView1.DataSource;
+            dt = (DataTable)dataGridViewDownloads.DataSource;
             dt.TableName = "Download Queue";
             dt.WriteXml(Application.StartupPath + @"\DownloadQueue.xml", true);
         }
 
+        private async void GetTransfers()
+        {
+            dataGridViewTransfers.Rows.Clear();
+            var transfers = await trfrmgr.List();
+            foreach (JObject transfer in transfers)
+            {
+
+                string name = transfer["name"].ToString();
+                string id = transfer["id"].ToString();
+                string peers = transfer["peers_connected"].ToString();
+                string uploaded = ((Convert.ToInt32(transfer["uploaded"]) / 1024) / 1024).ToString() + " Mb";
+                string status = transfer["status"].ToString();
+                string parentid = transfer["save_parent_id"].ToString();
+                string source = transfer["source"].ToString();
+                string started = transfer["created_at"].ToString();
+                string size = transfer["size"].ToString();
+
+                var putiotransfer = new PutioTransfer(name, id);
+                putiotransfer.save_parent_id = parentid;
+                putiotransfer.source = source;
+                putiotransfer.status = status;
+                putiotransfer.started = started;
+                putiotransfer.size = size;
+
+                size = ((Convert.ToInt64(size) / 1024) / 1024).ToString() + " Mb";
+
+                int rowindex = dataGridViewTransfers.Rows.Add(name, size, peers, uploaded, started, status);
+                var row = dataGridViewTransfers.Rows[rowindex];
+                row.Tag = putiotransfer;
+
+            }
+
+            dataGridViewTransfers.Sort(dataGridViewTransfers.Columns[4], ListSortDirection.Descending);
+
+        }
+
+
+        private string magnet(string inStrUrl)
+        {
+            return inStrUrl.Split('=')[2].Replace("&tr", "").Replace("+", " ");
+        }
+
+
         // test button!
 
-        private void testToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void testToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            TreeNode selectednode = treeViewPutioFiles.SelectedNode;
-            var putiofile = selectednode.Tag as PutioFile;
-            Console.WriteLine(putiofile.downloadlink);
+            var response = await trfrmgr.List();
+            foreach (JObject jobject in response){
+                Console.WriteLine(jobject);
+            }
         }
 
     }

@@ -47,10 +47,8 @@
       <HintPath>..\..\..\..\source\repos\putio\putio\libs\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PutioManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\PutioManager.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="PutioApiManager">
+      <HintPath>..\..\..\..\source\repos\PutioApiManager\PutioApiManager\bin\Debug\PutioApiManager.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -98,6 +96,7 @@
       <DependentUpon>FormPutioSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="PutioFile.cs" />
+    <Compile Include="PutioTransfer.cs" />
     <EmbeddedResource Include="DialogBox.resx">
       <DependentUpon>DialogBox.cs</DependentUpon>
     </EmbeddedResource>
@@ -150,7 +149,7 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="lib\PutioManager.dll" />
+    <None Include="lib\PutioManager.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
