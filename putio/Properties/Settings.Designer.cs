@@ -86,5 +86,65 @@ namespace putio.Properties {
                 this["DeleteAfterDownload"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowManager {
+            get {
+                return ((bool)(this["ShowManager"]));
+            }
+            set {
+                this["ShowManager"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowTransfers {
+            get {
+                return ((bool)(this["ShowTransfers"]));
+            }
+            set {
+                this["ShowTransfers"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoStartApplication {
+            get {
+                return ((bool)(this["AutoStartApplication"]));
+            }
+            set {
+                this["AutoStartApplication"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowAutoDownloads {
+            get {
+                return ((bool)(this["ShowAutoDownloads"]));
+            }
+            set {
+                this["ShowAutoDownloads"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int AutoDownloadInterval {
+            get {
+                return ((int)(this["AutoDownloadInterval"]));
+            }
+            set {
+                this["AutoDownloadInterval"] = value;
+            }
+        }
     }
 }

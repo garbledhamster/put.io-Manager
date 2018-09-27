@@ -40,10 +40,14 @@
             this.textBoxDownloadPath = new System.Windows.Forms.TextBox();
             this.checkBoxShowToolTips = new System.Windows.Forms.CheckBox();
             this.groupBoxGeneral = new System.Windows.Forms.GroupBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.labelAutoDownloadInterval = new System.Windows.Forms.Label();
+            this.numericUpDownAutoDownloadInterval = new System.Windows.Forms.NumericUpDown();
             this.groupBoxAuthentication.SuspendLayout();
             this.groupBoxDownloads.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.groupBoxGeneral.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAutoDownloadInterval)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBoxAuthentication
@@ -91,6 +95,8 @@
             // 
             // groupBoxDownloads
             // 
+            this.groupBoxDownloads.Controls.Add(this.labelAutoDownloadInterval);
+            this.groupBoxDownloads.Controls.Add(this.numericUpDownAutoDownloadInterval);
             this.groupBoxDownloads.Controls.Add(this.checkBoxDeleteAfterDownload);
             this.groupBoxDownloads.Controls.Add(this.labelParallelDownloads);
             this.groupBoxDownloads.Controls.Add(this.numericUpDown1);
@@ -108,7 +114,7 @@
             // 
             this.checkBoxDeleteAfterDownload.AutoSize = true;
             this.checkBoxDeleteAfterDownload.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.checkBoxDeleteAfterDownload.Location = new System.Drawing.Point(6, 87);
+            this.checkBoxDeleteAfterDownload.Location = new System.Drawing.Point(176, 56);
             this.checkBoxDeleteAfterDownload.Name = "checkBoxDeleteAfterDownload";
             this.checkBoxDeleteAfterDownload.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.checkBoxDeleteAfterDownload.Size = new System.Drawing.Size(133, 17);
@@ -173,7 +179,7 @@
             // 
             this.checkBoxShowToolTips.AutoSize = true;
             this.checkBoxShowToolTips.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.checkBoxShowToolTips.Location = new System.Drawing.Point(16, 31);
+            this.checkBoxShowToolTips.Location = new System.Drawing.Point(17, 27);
             this.checkBoxShowToolTips.Name = "checkBoxShowToolTips";
             this.checkBoxShowToolTips.Size = new System.Drawing.Size(100, 17);
             this.checkBoxShowToolTips.TabIndex = 4;
@@ -182,6 +188,7 @@
             // 
             // groupBoxGeneral
             // 
+            this.groupBoxGeneral.Controls.Add(this.checkBox1);
             this.groupBoxGeneral.Controls.Add(this.checkBoxShowToolTips);
             this.groupBoxGeneral.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.groupBoxGeneral.Location = new System.Drawing.Point(280, 12);
@@ -189,7 +196,51 @@
             this.groupBoxGeneral.Size = new System.Drawing.Size(191, 82);
             this.groupBoxGeneral.TabIndex = 5;
             this.groupBoxGeneral.TabStop = false;
-            this.groupBoxGeneral.Text = "UI";
+            this.groupBoxGeneral.Text = "General";
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.checkBox1.Location = new System.Drawing.Point(17, 50);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(128, 17);
+            this.checkBox1.TabIndex = 5;
+            this.checkBox1.Text = "Auto Start Application";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // labelAutoDownloadInterval
+            // 
+            this.labelAutoDownloadInterval.AutoSize = true;
+            this.labelAutoDownloadInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.labelAutoDownloadInterval.Location = new System.Drawing.Point(5, 87);
+            this.labelAutoDownloadInterval.Name = "labelAutoDownloadInterval";
+            this.labelAutoDownloadInterval.Size = new System.Drawing.Size(143, 13);
+            this.labelAutoDownloadInterval.TabIndex = 8;
+            this.labelAutoDownloadInterval.Text = "Auto Download Interval (min)";
+            // 
+            // numericUpDownAutoDownloadInterval
+            // 
+            this.numericUpDownAutoDownloadInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.numericUpDownAutoDownloadInterval.Location = new System.Drawing.Point(154, 85);
+            this.numericUpDownAutoDownloadInterval.Maximum = new decimal(new int[] {
+            180,
+            0,
+            0,
+            0});
+            this.numericUpDownAutoDownloadInterval.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownAutoDownloadInterval.Name = "numericUpDownAutoDownloadInterval";
+            this.numericUpDownAutoDownloadInterval.Size = new System.Drawing.Size(48, 20);
+            this.numericUpDownAutoDownloadInterval.TabIndex = 7;
+            this.numericUpDownAutoDownloadInterval.Value = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
             // 
             // FormPutioSettings
             // 
@@ -215,6 +266,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.groupBoxGeneral.ResumeLayout(false);
             this.groupBoxGeneral.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAutoDownloadInterval)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -233,5 +285,8 @@
         private System.Windows.Forms.Label labelParallelDownloads;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.CheckBox checkBoxDeleteAfterDownload;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Label labelAutoDownloadInterval;
+        private System.Windows.Forms.NumericUpDown numericUpDownAutoDownloadInterval;
     }
 }

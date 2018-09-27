@@ -24,6 +24,9 @@ namespace putio
         public TreeNode file;
         public WebClient webcilent;
 
+        public string autodownload_extensions;
+        public Int64 autodownload_minsize;
+
         public PutioFile(string inStrFileID, string inStrFileName)
         {
             id = inStrFileID;

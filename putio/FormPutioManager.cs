@@ -42,6 +42,15 @@ namespace putio
 
             treeViewPutioFiles.ShowNodeToolTips = Properties.Settings.Default.ShowToolTips;
             treeViewPutioFiles.SelectedNode = treeViewPutioFiles.Nodes[0];
+
+           
+            autoDownloadsToolStripMenuItem.Checked = !Properties.Settings.Default.ShowAutoDownloads;
+            transfersToolStripMenuItem.Checked = !Properties.Settings.Default.ShowTransfers;
+            managersToolStripMenuItem.Checked = !Properties.Settings.Default.ShowManager;
+            splitContainerManager.Panel2Collapsed = Properties.Settings.Default.ShowTransfers;
+            splitContainerFiles.Panel2Collapsed = Properties.Settings.Default.ShowAutoDownloads;
+            splitContainer1.Panel2Collapsed = Properties.Settings.Default.ShowManager;
+
         }
 
         private void InitializeAsync()
@@ -68,7 +77,6 @@ namespace putio
         private const string urlPutioApi = "https://api.put.io/v2/";
         List<WebClient> WebClients = new List<WebClient>();
         Queue<PutioFile> FileDownloads = new Queue<PutioFile>();
-        List<BackgroundWorker> TimeKeepers = new List<BackgroundWorker>();
 
         // Initalizers
 
@@ -135,7 +143,7 @@ namespace putio
 
         private void FormPutioManager_FormClosing(object sender, FormClosingEventArgs e)
         {
-
+            Properties.Settings.Default.Save();
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -144,7 +152,7 @@ namespace putio
             DeleteFile(selectedNode.Tag as PutioFile);
         }
 
-        // Menu Strip
+        // Files Context Menu
 
         private void downloadToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -208,11 +216,46 @@ namespace putio
             UpdateTreeView(await filemgr.List("0"), treeViewPutioFiles.SelectedNode);
         }
 
+        private async void refreshToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            TreeNode node = treeViewPutioFiles.SelectedNode;
+
+            var file = treeViewPutioFiles.SelectedNode.Tag as PutioFile;
+            string id = file.id;
+            UpdateTreeView(await filemgr.List(id), treeViewPutioFiles.SelectedNode);
+
+        }
+
+        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            treeViewPutioFiles.SelectedNode.BeginEdit();
+        }
+
+        private void autoDownloadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
+            var putiofile = selectedNode.Tag as PutioFile;
+            if (putiofile.file_type == "FOLDER")
+            {
+                var frmAutoDownload = new FormPutioAutoDownload();
+                frmAutoDownload.ShowDialog();
+                TreeNode auto = treeViewAutoDownloads.Nodes.Add(putiofile.name);
+                putiofile.autodownload_extensions = frmAutoDownload.extensions;
+                putiofile.autodownload_minsize = (frmAutoDownload.minsize * 1024) * 1024;
+                auto.Tag = putiofile;
+                frmAutoDownload.Dispose();
+            }
+        }
+
+        // AutoDownloads Context Menu
+
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (treeViewAutoDownloads.SelectedNode != null)
                 treeViewAutoDownloads.SelectedNode.Remove();
         }
+
+        // Transfers Context Menu
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -221,7 +264,7 @@ namespace putio
                 string url = Clipboard.GetText().ToString();
                 var file = treeViewPutioFiles.SelectedNode.Tag as PutioFile;
                 var option = MessageBox.Show(string.Format("Download {0} to {1}", magnet(url), file.name), "test", MessageBoxButtons.OKCancel);
-        
+
                 if (option == DialogResult.OK)
                 {
                     trfrmgr.Add(url, file.id);
@@ -243,32 +286,36 @@ namespace putio
 
         }
 
-        private async void refreshToolStripMenuItem1_Click(object sender, EventArgs e)
+        // View - Menu Strip
+
+        private void autoDownloadsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TreeNode node = treeViewPutioFiles.SelectedNode;
-
-            var file = treeViewPutioFiles.SelectedNode.Tag as PutioFile;
-            string id = file.id;
-            UpdateTreeView(await filemgr.List(id), treeViewPutioFiles.SelectedNode);
-
+            var toolStripMenuItem = (sender as ToolStripMenuItem);
+            Properties.Settings.Default.ShowAutoDownloads = toolStripMenuItem.Checked;
+            Properties.Settings.Default.Save();
+            toolStripMenuItem.Checked = !toolStripMenuItem.Checked;
+            splitContainerFiles.Panel2Collapsed = !toolStripMenuItem.Checked;
         }
 
-        // Tool Strip
-
-        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        private void transfersToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            treeViewPutioFiles.SelectedNode.BeginEdit();
+            var toolStripMenuItem = (sender as ToolStripMenuItem);
+            Properties.Settings.Default.ShowTransfers = toolStripMenuItem.Checked;
+            Properties.Settings.Default.Save();
+            toolStripMenuItem.Checked = !toolStripMenuItem.Checked;
+            splitContainerManager.Panel2Collapsed = !toolStripMenuItem.Checked;
         }
 
-        private void autoDownloadToolStripMenuItem_Click(object sender, EventArgs e)
+        private void managersToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (treeViewPutioFiles.SelectedNode != treeViewPutioFiles.Nodes[0])
-            {
-                TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
-                var putioFile = selectedNode.Tag as PutioFile;
-                treeViewAutoDownloads.Nodes.Add(putioFile.name).Tag = putioFile;
-            }
+            var toolStripMenuItem = (sender as ToolStripMenuItem);
+            Properties.Settings.Default.ShowManager = toolStripMenuItem.Checked;
+            Properties.Settings.Default.Save();
+            toolStripMenuItem.Checked = !toolStripMenuItem.Checked;
+            splitContainer1.Panel2Collapsed = !toolStripMenuItem.Checked;
         }
+
+        // File - Menu strip
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -356,7 +403,6 @@ namespace putio
                 putiofile.parent_id = file["parent_id"].ToString();
                 putiofile.content_type = file["content_type"].ToString();
                 putiofile.file_type = file["file_type"].ToString();
-
                 //PrintPutioProperties(putiofile);
 
                 TreeNode newnode = node.Nodes.Add(putiofile.name);
@@ -453,12 +499,59 @@ namespace putio
 
         }
 
-
         private string magnet(string inStrUrl)
         {
             return inStrUrl.Split('=')[2].Replace("&tr", "").Replace("+", " ");
         }
 
+        private string Extension(string inStrFileName)
+        {
+            return Path.GetExtension(inStrFileName.ToLower());
+        }
+
+        private async void CheckAutoDownloads()
+        {
+            // Check autodownloads
+            if (treeViewAutoDownloads.Nodes.Count > 0)
+            {
+                // loop through autodownloads
+                foreach (TreeNode node in treeViewAutoDownloads.Nodes)
+                {
+                    
+                    var folder = node.Tag as PutioFile;
+                    var response = await filemgr.List(folder.id);
+                    List<string> extensions = new List<string>();
+                    extensions.AddRange(folder.autodownload_extensions.Split(',').ToArray());
+                 
+                    // check files of autodownload
+                    foreach (JObject obj in response.Where(obj => obj["file_type"].ToString() == "FOLDER"))
+                    {
+                        var folderitems = await filemgr.List(obj["id"].ToString());
+                        foreach (JObject file in folderitems.Where(child => child["file_type"].ToString() != "FOLDER"))
+                        {
+                            string fileext = Extension(file["name"].ToString());
+
+                            var match = extensions.FirstOrDefault(ext => ext.Contains(fileext));
+                            if (match != null & Convert.ToInt64(file["size"]) >= folder.autodownload_minsize)
+                            {
+                                Console.WriteLine(fileext);
+                                var putiofile = new PutioFile(file["id"].ToString(), file["name"].ToString());
+                                putiofile.parent_id = file["parent_id"].ToString();
+                                putiofile.content_type = file["content_type"].ToString();
+                                putiofile.file_type = file["file_type"].ToString();
+
+                                var thing =  dataGridViewDownloads.Rows.Add(putiofile.name, putiofile.file_type, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), "", "QUEUED");
+                                DataGridViewRow newrow = dataGridViewDownloads.Rows[thing];
+                                putiofile.rowinque = newrow;
+                                newrow.Tag = putiofile;
+
+                                Console.WriteLine(putiofile.name);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // test button!
 
@@ -470,5 +563,14 @@ namespace putio
             }
         }
 
+        private void checkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CheckAutoDownloads();
+        }
+
+        private void dataGridViewDownloads_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 }
