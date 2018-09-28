@@ -51,6 +51,11 @@ namespace putio
             splitContainerFiles.Panel2Collapsed = Properties.Settings.Default.ShowAutoDownloads;
             splitContainer1.Panel2Collapsed = Properties.Settings.Default.ShowManager;
 
+            TimeWorker.DoWork += TimeWorker_DoWork;
+            TimeWorker.ProgressChanged += TimeWorker_ReportProgress;
+            TimeWorker.WorkerReportsProgress = true;
+            TimeWorker.WorkerSupportsCancellation = true;
+            TimeWorker.RunWorkerCompleted += TimeWorker_Complete;
         }
 
         private void InitializeAsync()
@@ -77,6 +82,12 @@ namespace putio
         private const string urlPutioApi = "https://api.put.io/v2/";
         List<WebClient> WebClients = new List<WebClient>();
         Queue<PutioFile> FileDownloads = new Queue<PutioFile>();
+
+        BackgroundWorker TimeWorker = new BackgroundWorker();
+
+        bool closeform = false;
+
+
 
         // Initalizers
 
@@ -123,6 +134,28 @@ namespace putio
             DownloadFile();
         }
 
+        private void TimeWorker_DoWork(object sender , DoWorkEventArgs e)
+        {
+            do
+            {
+                if (TimeWorker.CancellationPending)
+                    break;
+                int sleeptime = Properties.Settings.Default.AutoDownloadInterval * 1000;
+                System.Threading.Thread.Sleep(sleeptime);
+                TimeWorker.ReportProgress(0);
+            } while (true);
+        }
+
+        private void TimeWorker_ReportProgress(object sender , ProgressChangedEventArgs e)
+        {
+            CheckAutoDownloads();
+        }
+
+        private void TimeWorker_Complete(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Console.WriteLine("TimeWorker Stopped");
+        }
+
         // Form Controls
 
         private async void FormPutioManager_Load(object sender, EventArgs e)
@@ -130,9 +163,11 @@ namespace putio
             treeViewPutioFiles.SelectedNode = rootnode;
             try
             {
+                notifyIcon1.Visible = true;
                 UpdateTreeView(await filemgr.List("0"), rootnode);
                 var response = await filemgr.AccountInfo();
                 UpdateStatusText(string.Format("Connected Account: " + response["username"].ToString()));
+                TimeWorker.RunWorkerAsync();
                 GetTransfers();
             }
             catch 
@@ -143,13 +178,42 @@ namespace putio
 
         private void FormPutioManager_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Properties.Settings.Default.Save();
+            if (closeform)
+            {
+                Properties.Settings.Default.Save();
+                if (DownloadInProgress())
+                {
+                    DialogResult result = MessageBox.Show("Something is still downloading, continue closing?", "Download in progress", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    if (result == DialogResult.No)
+                        e.Cancel = true;
+                }
+            }
+            else
+            {
+                e.Cancel = true;
+                Hide();
+            }
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TreeNode selectedNode = treeViewPutioFiles.SelectedNode;
             DeleteFile(selectedNode.Tag as PutioFile);
+        }
+
+        private void FormPutioManager_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                Hide();
+                notifyIcon1.Visible = true;
+            }
+        }
+
+        private void FormPutioManager_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Show();
+            this.WindowState = FormWindowState.Normal;
         }
 
         // Files Context Menu
@@ -251,13 +315,14 @@ namespace putio
 
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
+
             if (treeViewAutoDownloads.SelectedNode != null)
                 treeViewAutoDownloads.SelectedNode.Remove();
         }
 
         // Transfers Context Menu
 
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (Clipboard.GetText().ToString().StartsWith("magnet:"))
             {
@@ -267,7 +332,7 @@ namespace putio
 
                 if (option == DialogResult.OK)
                 {
-                    trfrmgr.Add(url, file.id);
+                    await trfrmgr.Add(url, file.id);
                     GetTransfers();
                 }
             }
@@ -379,17 +444,20 @@ namespace putio
 
         private void QueueDownload(PutioFile putiofile)
         {
-            string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
-            string path = Properties.Settings.Default.DownloadDirectory + @"\" + putiofile.name;
+            if (!AlreadyDownloading(putiofile))
+            {
+                string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+                string path = Properties.Settings.Default.DownloadDirectory + @"\" + putiofile.name;
 
-            dataGridViewDownloads.Rows.Add(putiofile.name, putiofile.file_type, started, "", "Not Started");
-            DataGridViewRow newDownloadRow = dataGridViewDownloads.Rows[dataGridViewDownloads.Rows.Count - 1];
+                dataGridViewDownloads.Rows.Add(putiofile.name, putiofile.file_type, started, "", "Not Started");
+                DataGridViewRow newDownloadRow = dataGridViewDownloads.Rows[dataGridViewDownloads.Rows.Count - 1];
 
-            putiofile.rowinque = newDownloadRow;
-            putiofile.download_path = path;
+                putiofile.rowinque = newDownloadRow;
+                putiofile.download_path = path;
 
-            FileDownloads.Enqueue(putiofile);
-            DownloadFile();
+                FileDownloads.Enqueue(putiofile);
+                DownloadFile();
+            }
         }
 
         private void UpdateTreeView(JArray inJArrFiles, TreeNode node)
@@ -442,7 +510,8 @@ namespace putio
             string status = JObject.Parse(deletemessage)["status"].ToString();
             if (status == "OK")
             {
-                treeViewPutioFiles.Nodes.Remove(inPutioFile.file);
+                if (inPutioFile.file != null)   
+                    treeViewPutioFiles.Nodes.Remove(inPutioFile.file);
             }
         }
 
@@ -504,53 +573,80 @@ namespace putio
             return inStrUrl.Split('=')[2].Replace("&tr", "").Replace("+", " ");
         }
 
-        private string Extension(string inStrFileName)
+        private string GetFileExtension(string inStrFileName)
         {
             return Path.GetExtension(inStrFileName.ToLower());
         }
 
-        private async void CheckAutoDownloads()
+        private void CheckAutoDownloads()
         {
-            // Check autodownloads
-            if (treeViewAutoDownloads.Nodes.Count > 0)
+            foreach (TreeNode rootfolder in treeViewAutoDownloads.Nodes)
             {
-                // loop through autodownloads
-                foreach (TreeNode node in treeViewAutoDownloads.Nodes)
+                AutoDownloadFiles(rootfolder.Tag as PutioFile);
+            }
+        }
+
+        private async void AutoDownloadFiles(PutioFile putiofile)
+        {
+            var response = await filemgr.List(putiofile.id);
+            List<string> allowed_extensions = new List<string>();
+            allowed_extensions.AddRange(putiofile.autodownload_extensions.Split(',').ToArray());
+
+            foreach (JObject jobject in response)
+            {
+                var file = SetPutioFile(jobject);
+                file.autodownload_extensions = putiofile.autodownload_extensions;
+                file.autodownload_minsize = putiofile.autodownload_minsize;
+                if (file.file_type == "FOLDER")
                 {
-                    
-                    var folder = node.Tag as PutioFile;
-                    var response = await filemgr.List(folder.id);
-                    List<string> extensions = new List<string>();
-                    extensions.AddRange(folder.autodownload_extensions.Split(',').ToArray());
-                 
-                    // check files of autodownload
-                    foreach (JObject obj in response.Where(obj => obj["file_type"].ToString() == "FOLDER"))
-                    {
-                        var folderitems = await filemgr.List(obj["id"].ToString());
-                        foreach (JObject file in folderitems.Where(child => child["file_type"].ToString() != "FOLDER"))
-                        {
-                            string fileext = Extension(file["name"].ToString());
-
-                            var match = extensions.FirstOrDefault(ext => ext.Contains(fileext));
-                            if (match != null & Convert.ToInt64(file["size"]) >= folder.autodownload_minsize)
-                            {
-                                Console.WriteLine(fileext);
-                                var putiofile = new PutioFile(file["id"].ToString(), file["name"].ToString());
-                                putiofile.parent_id = file["parent_id"].ToString();
-                                putiofile.content_type = file["content_type"].ToString();
-                                putiofile.file_type = file["file_type"].ToString();
-
-                                var thing =  dataGridViewDownloads.Rows.Add(putiofile.name, putiofile.file_type, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), "", "QUEUED");
-                                DataGridViewRow newrow = dataGridViewDownloads.Rows[thing];
-                                putiofile.rowinque = newrow;
-                                newrow.Tag = putiofile;
-
-                                Console.WriteLine(putiofile.name);
-                            }
-                        }
-                    }
+                    AutoDownloadFiles(file);
+                }
+                else
+                {
+                    var match = allowed_extensions.FirstOrDefault(filext => filext.Contains(GetFileExtension(file.name)));
+                    if (match != null & file.autodownload_minsize <= Convert.ToInt64(file.size))
+                        QueueDownload(file);
                 }
             }
+        }
+
+        private bool AlreadyDownloading(PutioFile putiofile)
+        {
+            foreach (DataGridViewRow row in dataGridViewDownloads.Rows)
+            {
+                if (row.Cells["ColumnFile"].Value.ToString() == putiofile.name)
+                {
+                    //Console.WriteLine("file " + putiofile.name + " is already downloading");
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool DownloadInProgress()
+        {
+            foreach (DataGridViewRow row in dataGridViewDownloads.Rows)
+            {
+                if (row.Cells["ColumnStatus"].Value.ToString() != "COMPLETE")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private PutioFile SetPutioFile(JObject file)
+        {
+            var putiofile = new PutioFile(file["id"].ToString(), file["name"].ToString());
+            putiofile.parent_id = file["parent_id"].ToString();
+            putiofile.content_type = file["content_type"].ToString();
+            putiofile.file_type = file["file_type"].ToString();
+            putiofile.download_path = Properties.Settings.Default.DownloadDirectory + @"\" + putiofile.name;
+            putiofile.size = file["size"].ToString();
+            if (putiofile.content_type != "FOLDER")
+                putiofile.downloadlink = new Uri(urlPutioApi + "files/" + putiofile.id + "/download?oauth_token=" + OAuthToken);
+
+            return putiofile;
         }
 
         // test button!
@@ -572,5 +668,12 @@ namespace putio
         {
 
         }
+
+        private void closeToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            closeform = true;
+            Application.Exit();
+        }
+
     }
 }

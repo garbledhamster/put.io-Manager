@@ -68,7 +68,7 @@
             this.textBoxExtensions.Name = "textBoxExtensions";
             this.textBoxExtensions.Size = new System.Drawing.Size(261, 20);
             this.textBoxExtensions.TabIndex = 2;
-            this.textBoxExtensions.Text = ".txt,.avi,.mov";
+            this.textBoxExtensions.Text = ".mkv,.avi,.mp4";
             // 
             // checkBoxKeepFolderStructure
             // 
