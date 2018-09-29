@@ -47,7 +47,6 @@ namespace putio
             autoDownloadsToolStripMenuItem.Checked = !Properties.Settings.Default.ShowAutoDownloads;
             transfersToolStripMenuItem.Checked = !Properties.Settings.Default.ShowTransfers;
             managersToolStripMenuItem.Checked = !Properties.Settings.Default.ShowManager;
-            splitContainerManager.Panel2Collapsed = Properties.Settings.Default.ShowTransfers;
             splitContainerFiles.Panel2Collapsed = Properties.Settings.Default.ShowAutoDownloads;
             splitContainer1.Panel2Collapsed = Properties.Settings.Default.ShowManager;
 
@@ -86,8 +85,6 @@ namespace putio
         BackgroundWorker TimeWorker = new BackgroundWorker();
 
         bool closeform = false;
-
-
 
         // Initalizers
 
@@ -161,9 +158,12 @@ namespace putio
         private async void FormPutioManager_Load(object sender, EventArgs e)
         {
             treeViewPutioFiles.SelectedNode = rootnode;
+            //this.Icon.Size = new Size(32, 32);
             try
             {
                 notifyIcon1.Visible = true;
+
+
                 UpdateTreeView(await filemgr.List("0"), rootnode);
                 var response = await filemgr.AccountInfo();
                 UpdateStatusText(string.Format("Connected Account: " + response["username"].ToString()));
@@ -368,7 +368,6 @@ namespace putio
             Properties.Settings.Default.ShowTransfers = toolStripMenuItem.Checked;
             Properties.Settings.Default.Save();
             toolStripMenuItem.Checked = !toolStripMenuItem.Checked;
-            splitContainerManager.Panel2Collapsed = !toolStripMenuItem.Checked;
         }
 
         private void managersToolStripMenuItem_Click(object sender, EventArgs e)
@@ -460,50 +459,6 @@ namespace putio
             }
         }
 
-        private void UpdateTreeView(JArray inJArrFiles, TreeNode node)
-        {
-            node.Nodes.Clear();
-            foreach (JObject file in inJArrFiles)
-            {
-                string message = null;
-
-                var putiofile = new PutioFile(file["id"].ToString(), file["name"].ToString());
-                putiofile.parent_id = file["parent_id"].ToString();
-                putiofile.content_type = file["content_type"].ToString();
-                putiofile.file_type = file["file_type"].ToString();
-                //PrintPutioProperties(putiofile);
-
-                TreeNode newnode = node.Nodes.Add(putiofile.name);
-                newnode.Tag = putiofile;
-                putiofile.file = newnode;
-
-                // set tooltip node text to the files properties
-                foreach (var property in file)
-                    message += property.Key.ToString().ToLower() + ": " + property.Value.ToString().ToLower() + Environment.NewLine;
-
-                newnode.ToolTipText = message;
-
-                if (file["file_type"].ToString() != "FOLDER")
-                {
-                    newnode.SelectedImageIndex = 2;
-                    newnode.ImageIndex = 2;
-                }
-                else
-                    newnode.Nodes.Add("Loading...");
-
-            }
-        }
-
-        private void UpdateCellValue(DataGridViewRow inDgvrParentOfCell, string inStrColumnName, string inStrValue)
-        {
-            inDgvrParentOfCell.Cells[inStrColumnName].Value = inStrValue;
-        }
-
-        private void UpdateStatusText(string inStrStatusText)
-        {
-            toolStripStatusLabel1.Text = inStrStatusText;
-        }
-
         private async void DeleteFile(PutioFile inPutioFile)
         {
             var deletemessage = await filemgr.Delete(inPutioFile.id);
@@ -515,124 +470,12 @@ namespace putio
             }
         }
 
-        private void PrintPutioProperties(PutioFile putiofile)
-        {
-            Console.WriteLine("===================");
-            Console.WriteLine("filename: " + putiofile.name);
-            Console.WriteLine("fileid: " + putiofile.id);
-            Console.WriteLine("parent_id: " + putiofile.parent_id);
-            Console.WriteLine("filetype: " + putiofile.file_type);
-        }
-
         private void ExportDataGridView()
         {
             var dt = new DataTable();
             dt = (DataTable)dataGridViewDownloads.DataSource;
             dt.TableName = "Download Queue";
             dt.WriteXml(Application.StartupPath + @"\DownloadQueue.xml", true);
-        }
-
-        private async void GetTransfers()
-        {
-            dataGridViewTransfers.Rows.Clear();
-            var transfers = await trfrmgr.List();
-            foreach (JObject transfer in transfers)
-            {
-
-                string name = transfer["name"].ToString();
-                string id = transfer["id"].ToString();
-                string peers = transfer["peers_connected"].ToString();
-                string uploaded = ((Convert.ToInt32(transfer["uploaded"]) / 1024) / 1024).ToString() + " Mb";
-                string status = transfer["status"].ToString();
-                string parentid = transfer["save_parent_id"].ToString();
-                string source = transfer["source"].ToString();
-                string started = transfer["created_at"].ToString();
-                string size = transfer["size"].ToString();
-
-                var putiotransfer = new PutioTransfer(name, id);
-                putiotransfer.save_parent_id = parentid;
-                putiotransfer.source = source;
-                putiotransfer.status = status;
-                putiotransfer.started = started;
-                putiotransfer.size = size;
-
-                size = ((Convert.ToInt64(size) / 1024) / 1024).ToString() + " Mb";
-
-                int rowindex = dataGridViewTransfers.Rows.Add(name, size, peers, uploaded, started, status);
-                var row = dataGridViewTransfers.Rows[rowindex];
-                row.Tag = putiotransfer;
-
-            }
-
-            dataGridViewTransfers.Sort(dataGridViewTransfers.Columns[4], ListSortDirection.Descending);
-
-        }
-
-        private string magnet(string inStrUrl)
-        {
-            return inStrUrl.Split('=')[2].Replace("&tr", "").Replace("+", " ");
-        }
-
-        private string GetFileExtension(string inStrFileName)
-        {
-            return Path.GetExtension(inStrFileName.ToLower());
-        }
-
-        private void CheckAutoDownloads()
-        {
-            foreach (TreeNode rootfolder in treeViewAutoDownloads.Nodes)
-            {
-                AutoDownloadFiles(rootfolder.Tag as PutioFile);
-            }
-        }
-
-        private async void AutoDownloadFiles(PutioFile putiofile)
-        {
-            var response = await filemgr.List(putiofile.id);
-            List<string> allowed_extensions = new List<string>();
-            allowed_extensions.AddRange(putiofile.autodownload_extensions.Split(',').ToArray());
-
-            foreach (JObject jobject in response)
-            {
-                var file = SetPutioFile(jobject);
-                file.autodownload_extensions = putiofile.autodownload_extensions;
-                file.autodownload_minsize = putiofile.autodownload_minsize;
-                if (file.file_type == "FOLDER")
-                {
-                    AutoDownloadFiles(file);
-                }
-                else
-                {
-                    var match = allowed_extensions.FirstOrDefault(filext => filext.Contains(GetFileExtension(file.name)));
-                    if (match != null & file.autodownload_minsize <= Convert.ToInt64(file.size))
-                        QueueDownload(file);
-                }
-            }
-        }
-
-        private bool AlreadyDownloading(PutioFile putiofile)
-        {
-            foreach (DataGridViewRow row in dataGridViewDownloads.Rows)
-            {
-                if (row.Cells["ColumnFile"].Value.ToString() == putiofile.name)
-                {
-                    //Console.WriteLine("file " + putiofile.name + " is already downloading");
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool DownloadInProgress()
-        {
-            foreach (DataGridViewRow row in dataGridViewDownloads.Rows)
-            {
-                if (row.Cells["ColumnStatus"].Value.ToString() != "COMPLETE")
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         private PutioFile SetPutioFile(JObject file)
@@ -675,5 +518,9 @@ namespace putio
             Application.Exit();
         }
 
+        private void menuStripMain_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
     }
 }

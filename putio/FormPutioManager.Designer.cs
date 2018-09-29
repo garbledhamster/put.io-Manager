@@ -61,7 +61,6 @@
             this.contextMenuStripAutoDownload = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.checkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBoxDownloads = new System.Windows.Forms.GroupBox();
             this.dataGridViewDownloads = new System.Windows.Forms.DataGridView();
             this.ColumnFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnType = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -70,8 +69,6 @@
             this.ColumnStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.splitContainerManager = new System.Windows.Forms.SplitContainer();
-            this.groupBoxTransfers = new System.Windows.Forms.GroupBox();
             this.dataGridViewTransfers = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -89,6 +86,9 @@
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStripNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabControlDownloads = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.menuStripMain.SuspendLayout();
             this.statusStripMain.SuspendLayout();
             this.contextMenuStripPutioFiles.SuspendLayout();
@@ -98,20 +98,17 @@
             this.splitContainerFiles.Panel2.SuspendLayout();
             this.splitContainerFiles.SuspendLayout();
             this.contextMenuStripAutoDownload.SuspendLayout();
-            this.groupBoxDownloads.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewDownloads)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerManager)).BeginInit();
-            this.splitContainerManager.Panel1.SuspendLayout();
-            this.splitContainerManager.Panel2.SuspendLayout();
-            this.splitContainerManager.SuspendLayout();
-            this.groupBoxTransfers.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewTransfers)).BeginInit();
             this.contextMenuStripTransfers.SuspendLayout();
             this.contextMenuStripNotifyIcon.SuspendLayout();
+            this.tabControlDownloads.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStripMain
@@ -122,9 +119,10 @@
             this.viewToolStripMenuItem});
             this.menuStripMain.Location = new System.Drawing.Point(0, 0);
             this.menuStripMain.Name = "menuStripMain";
-            this.menuStripMain.Size = new System.Drawing.Size(625, 24);
+            this.menuStripMain.Size = new System.Drawing.Size(844, 24);
             this.menuStripMain.TabIndex = 0;
             this.menuStripMain.Text = "menuStrip1";
+            this.menuStripMain.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStripMain_ItemClicked);
             // 
             // fileToolStripMenuItem
             // 
@@ -190,21 +188,21 @@
             // managersToolStripMenuItem
             // 
             this.managersToolStripMenuItem.Name = "managersToolStripMenuItem";
-            this.managersToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.managersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.managersToolStripMenuItem.Text = "Managers";
             this.managersToolStripMenuItem.Click += new System.EventHandler(this.managersToolStripMenuItem_Click);
             // 
             // transfersToolStripMenuItem
             // 
             this.transfersToolStripMenuItem.Name = "transfersToolStripMenuItem";
-            this.transfersToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.transfersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.transfersToolStripMenuItem.Text = "Transfers";
             this.transfersToolStripMenuItem.Click += new System.EventHandler(this.transfersToolStripMenuItem_Click);
             // 
             // autoDownloadsToolStripMenuItem
             // 
             this.autoDownloadsToolStripMenuItem.Name = "autoDownloadsToolStripMenuItem";
-            this.autoDownloadsToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.autoDownloadsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.autoDownloadsToolStripMenuItem.Text = "Auto Downloads";
             this.autoDownloadsToolStripMenuItem.Click += new System.EventHandler(this.autoDownloadsToolStripMenuItem_Click);
             // 
@@ -213,16 +211,16 @@
             this.statusStripMain.BackColor = System.Drawing.Color.Gray;
             this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStripMain.Location = new System.Drawing.Point(0, 422);
+            this.statusStripMain.Location = new System.Drawing.Point(0, 514);
             this.statusStripMain.Name = "statusStripMain";
-            this.statusStripMain.Size = new System.Drawing.Size(625, 22);
+            this.statusStripMain.Size = new System.Drawing.Size(844, 22);
             this.statusStripMain.TabIndex = 1;
             this.statusStripMain.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(610, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(829, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -315,7 +313,7 @@
             this.treeViewPutioFiles.Name = "treeViewPutioFiles";
             this.treeViewPutioFiles.SelectedImageIndex = 3;
             this.treeViewPutioFiles.ShowNodeToolTips = true;
-            this.treeViewPutioFiles.Size = new System.Drawing.Size(194, 244);
+            this.treeViewPutioFiles.Size = new System.Drawing.Size(199, 303);
             this.treeViewPutioFiles.TabIndex = 2;
             this.treeViewPutioFiles.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.treeViewPutioFiles_AfterLabelEdit);
             this.treeViewPutioFiles.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewPutioFiles_BeforeExpand);
@@ -326,7 +324,7 @@
             this.groupBoxFoldersFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBoxFoldersFiles.Location = new System.Drawing.Point(0, 0);
             this.groupBoxFoldersFiles.Name = "groupBoxFoldersFiles";
-            this.groupBoxFoldersFiles.Size = new System.Drawing.Size(200, 398);
+            this.groupBoxFoldersFiles.Size = new System.Drawing.Size(205, 490);
             this.groupBoxFoldersFiles.TabIndex = 3;
             this.groupBoxFoldersFiles.TabStop = false;
             this.groupBoxFoldersFiles.Text = "Folders && Files";
@@ -345,8 +343,8 @@
             // splitContainerFiles.Panel2
             // 
             this.splitContainerFiles.Panel2.Controls.Add(this.treeViewAutoDownloads);
-            this.splitContainerFiles.Size = new System.Drawing.Size(194, 379);
-            this.splitContainerFiles.SplitterDistance = 244;
+            this.splitContainerFiles.Size = new System.Drawing.Size(199, 471);
+            this.splitContainerFiles.SplitterDistance = 303;
             this.splitContainerFiles.TabIndex = 4;
             // 
             // treeViewAutoDownloads
@@ -363,7 +361,7 @@
             this.treeViewAutoDownloads.ShowNodeToolTips = true;
             this.treeViewAutoDownloads.ShowPlusMinus = false;
             this.treeViewAutoDownloads.ShowRootLines = false;
-            this.treeViewAutoDownloads.Size = new System.Drawing.Size(194, 131);
+            this.treeViewAutoDownloads.Size = new System.Drawing.Size(199, 164);
             this.treeViewAutoDownloads.TabIndex = 3;
             // 
             // contextMenuStripAutoDownload
@@ -388,19 +386,6 @@
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
             // 
-            // groupBoxDownloads
-            // 
-            this.groupBoxDownloads.Controls.Add(this.dataGridViewDownloads);
-            this.groupBoxDownloads.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxDownloads.Location = new System.Drawing.Point(0, 0);
-            this.groupBoxDownloads.Margin = new System.Windows.Forms.Padding(6);
-            this.groupBoxDownloads.Name = "groupBoxDownloads";
-            this.groupBoxDownloads.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBoxDownloads.Size = new System.Drawing.Size(414, 223);
-            this.groupBoxDownloads.TabIndex = 5;
-            this.groupBoxDownloads.TabStop = false;
-            this.groupBoxDownloads.Text = "Downloads";
-            // 
             // dataGridViewDownloads
             // 
             this.dataGridViewDownloads.AllowUserToAddRows = false;
@@ -419,12 +404,12 @@
             this.ColumnStatus});
             this.dataGridViewDownloads.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewDownloads.GridColor = System.Drawing.Color.Gray;
-            this.dataGridViewDownloads.Location = new System.Drawing.Point(4, 17);
+            this.dataGridViewDownloads.Location = new System.Drawing.Point(3, 3);
             this.dataGridViewDownloads.Name = "dataGridViewDownloads";
             this.dataGridViewDownloads.ReadOnly = true;
             this.dataGridViewDownloads.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridViewDownloads.RowHeadersVisible = false;
-            this.dataGridViewDownloads.Size = new System.Drawing.Size(406, 202);
+            this.dataGridViewDownloads.Size = new System.Drawing.Size(612, 456);
             this.dataGridViewDownloads.TabIndex = 0;
             this.dataGridViewDownloads.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewDownloads_CellClick);
             // 
@@ -462,7 +447,7 @@
             // 
             this.splitter1.Location = new System.Drawing.Point(0, 24);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 398);
+            this.splitter1.Size = new System.Drawing.Size(3, 490);
             this.splitter1.TabIndex = 4;
             this.splitter1.TabStop = false;
             // 
@@ -479,44 +464,12 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.splitContainerManager);
+            this.splitContainer1.Panel2.Controls.Add(this.tabControlDownloads);
             this.splitContainer1.Panel2MinSize = 300;
-            this.splitContainer1.Size = new System.Drawing.Size(622, 398);
-            this.splitContainer1.SplitterDistance = 200;
+            this.splitContainer1.Size = new System.Drawing.Size(841, 490);
+            this.splitContainer1.SplitterDistance = 205;
             this.splitContainer1.SplitterWidth = 8;
             this.splitContainer1.TabIndex = 6;
-            // 
-            // splitContainerManager
-            // 
-            this.splitContainerManager.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainerManager.Location = new System.Drawing.Point(0, 0);
-            this.splitContainerManager.Name = "splitContainerManager";
-            this.splitContainerManager.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainerManager.Panel1
-            // 
-            this.splitContainerManager.Panel1.Controls.Add(this.groupBoxDownloads);
-            // 
-            // splitContainerManager.Panel2
-            // 
-            this.splitContainerManager.Panel2.Controls.Add(this.groupBoxTransfers);
-            this.splitContainerManager.Size = new System.Drawing.Size(414, 398);
-            this.splitContainerManager.SplitterDistance = 223;
-            this.splitContainerManager.SplitterWidth = 8;
-            this.splitContainerManager.TabIndex = 7;
-            // 
-            // groupBoxTransfers
-            // 
-            this.groupBoxTransfers.Controls.Add(this.dataGridViewTransfers);
-            this.groupBoxTransfers.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxTransfers.Location = new System.Drawing.Point(0, 0);
-            this.groupBoxTransfers.Margin = new System.Windows.Forms.Padding(6);
-            this.groupBoxTransfers.Name = "groupBoxTransfers";
-            this.groupBoxTransfers.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBoxTransfers.Size = new System.Drawing.Size(414, 167);
-            this.groupBoxTransfers.TabIndex = 6;
-            this.groupBoxTransfers.TabStop = false;
-            this.groupBoxTransfers.Text = "Transfers";
             // 
             // dataGridViewTransfers
             // 
@@ -538,12 +491,12 @@
             this.dataGridViewTransfers.ContextMenuStrip = this.contextMenuStripTransfers;
             this.dataGridViewTransfers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewTransfers.GridColor = System.Drawing.Color.Gray;
-            this.dataGridViewTransfers.Location = new System.Drawing.Point(4, 17);
+            this.dataGridViewTransfers.Location = new System.Drawing.Point(3, 3);
             this.dataGridViewTransfers.Name = "dataGridViewTransfers";
             this.dataGridViewTransfers.ReadOnly = true;
             this.dataGridViewTransfers.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridViewTransfers.RowHeadersVisible = false;
-            this.dataGridViewTransfers.Size = new System.Drawing.Size(406, 146);
+            this.dataGridViewTransfers.Size = new System.Drawing.Size(612, 456);
             this.dataGridViewTransfers.TabIndex = 0;
             // 
             // dataGridViewTextBoxColumn1
@@ -650,16 +603,55 @@
             // closeToolStripMenuItem1
             // 
             this.closeToolStripMenuItem1.Name = "closeToolStripMenuItem1";
-            this.closeToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.closeToolStripMenuItem1.Size = new System.Drawing.Size(103, 22);
             this.closeToolStripMenuItem1.Text = "Close";
             this.closeToolStripMenuItem1.Click += new System.EventHandler(this.closeToolStripMenuItem1_Click);
+            // 
+            // tabControlDownloads
+            // 
+            this.tabControlDownloads.Alignment = System.Windows.Forms.TabAlignment.Bottom;
+            this.tabControlDownloads.Controls.Add(this.tabPage1);
+            this.tabControlDownloads.Controls.Add(this.tabPage2);
+            this.tabControlDownloads.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControlDownloads.Location = new System.Drawing.Point(0, 0);
+            this.tabControlDownloads.Multiline = true;
+            this.tabControlDownloads.Name = "tabControlDownloads";
+            this.tabControlDownloads.SelectedIndex = 0;
+            this.tabControlDownloads.Size = new System.Drawing.Size(628, 490);
+            this.tabControlDownloads.TabIndex = 8;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tabPage1.Controls.Add(this.dataGridViewDownloads);
+            this.tabPage1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabPage1.Location = new System.Drawing.Point(4, 4);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(620, 464);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Download";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tabPage2.Controls.Add(this.dataGridViewTransfers);
+            this.tabPage2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabPage2.Location = new System.Drawing.Point(4, 4);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(620, 464);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Transfers";
+            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // FormPutioManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(625, 444);
+            this.ClientSize = new System.Drawing.Size(844, 536);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.statusStripMain);
@@ -683,20 +675,17 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerFiles)).EndInit();
             this.splitContainerFiles.ResumeLayout(false);
             this.contextMenuStripAutoDownload.ResumeLayout(false);
-            this.groupBoxDownloads.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewDownloads)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.splitContainerManager.Panel1.ResumeLayout(false);
-            this.splitContainerManager.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerManager)).EndInit();
-            this.splitContainerManager.ResumeLayout(false);
-            this.groupBoxTransfers.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewTransfers)).EndInit();
             this.contextMenuStripTransfers.ResumeLayout(false);
             this.contextMenuStripNotifyIcon.ResumeLayout(false);
+            this.tabControlDownloads.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -712,7 +701,6 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStripPutioFiles;
         private System.Windows.Forms.TreeView treeViewPutioFiles;
         private System.Windows.Forms.GroupBox groupBoxFoldersFiles;
-        private System.Windows.Forms.GroupBox groupBoxDownloads;
         private System.Windows.Forms.DataGridView dataGridViewDownloads;
         private System.Windows.Forms.ToolStripMenuItem downloadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem zipDownloadToolStripMenuItem;
@@ -733,7 +721,6 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStripAutoDownload;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem testToolStripMenuItem;
-        private System.Windows.Forms.GroupBox groupBoxTransfers;
         private System.Windows.Forms.DataGridView dataGridViewTransfers;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripTransfers;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
@@ -742,7 +729,6 @@
         private System.Windows.Forms.ToolStripMenuItem retryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cleanToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
-        private System.Windows.Forms.SplitContainer splitContainerManager;
         private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnSize;
@@ -763,6 +749,9 @@
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripNotifyIcon;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem1;
+        private System.Windows.Forms.TabControl tabControlDownloads;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
     }
 }
 

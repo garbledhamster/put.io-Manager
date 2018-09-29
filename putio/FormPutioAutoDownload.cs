@@ -28,5 +28,10 @@ namespace putio
             keepFolderStructure = checkBoxKeepFolderStructure.Checked;
             this.Close();
         }
+
+        private void FormPutioAutoDownload_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

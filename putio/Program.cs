@@ -9,6 +9,7 @@ using System.Net;
 
 namespace putio
 {
+    [System.ComponentModel.DesignerCategory("Code")]
     static class Program
     {
         /// <summary>
