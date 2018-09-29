@@ -10,6 +10,7 @@ The initial interface is similar with some major adjustments.
 - [x] Downloader
 - [x] Zip Files
 - [x] Transfer Managment
+- [x] Auto Downloader
 - [ ] Download Scheduler
 - [ ] File Sharing
 - [ ] File Uploader
