@@ -20,12 +20,52 @@ namespace putio
 
     public partial class FormPutioManager
     {
-
         private void CheckAutoDownloads()
         {
             foreach (TreeNode rootfolder in treeViewAutoDownloads.Nodes)
             {
                 AutoDownloadFiles(rootfolder.Tag as PutioFile);
+            }
+        }
+
+        private void DownloadFile()
+        {
+            if (FileDownloads.Any())
+            {
+                foreach (WebClient wc in WebClients)
+                {
+                    if (!wc.IsBusy)
+                    {
+                        var putiofile = FileDownloads.Dequeue();
+                        putiofile.rowinque.Cells["ColumnStatus"].Value = "Queued";
+                        putiofile.webcilent = wc;
+
+                        ContextMenuStrip cstrip = new ContextMenuStrip();
+                        cstrip.Items.Add("Cancel").Click += (s, e1) => CstripDownload_Click(s, e1, putiofile);
+                        putiofile.rowinque.ContextMenuStrip = cstrip;
+                        wc.DownloadFileAsync(putiofile.downloadlink, putiofile.download_path, putiofile);
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+
+        private void QueueDownload(PutioFile putiofile)
+        {
+            if (!AlreadyDownloading(putiofile))
+            {
+                string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+                string path = Properties.Settings.Default.DownloadDirectory + @"\" + putiofile.name;
+
+                dataGridViewDownloads.Rows.Add(putiofile.name, putiofile.file_type, started, "", "Not Started");
+                DataGridViewRow newDownloadRow = dataGridViewDownloads.Rows[dataGridViewDownloads.Rows.Count - 1];
+
+                putiofile.rowinque = newDownloadRow;
+                putiofile.download_path = path;
+
+                FileDownloads.Enqueue(putiofile);
+                DownloadFile();
             }
         }
 

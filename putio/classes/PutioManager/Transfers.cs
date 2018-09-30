@@ -55,7 +55,5 @@ namespace putio
             dataGridViewTransfers.Sort(dataGridViewTransfers.Columns[4], ListSortDirection.Descending);
 
         }
-
-
     }
 }

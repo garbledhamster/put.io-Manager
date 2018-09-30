@@ -119,7 +119,6 @@ namespace putio
             else if (e.Error != null)
             {
                 UpdateCellValue(FileQueRow, "ColumnStatus", "Error");
-                File.Delete(FileDownload.download_path);
             }
             else
             {
@@ -418,47 +417,6 @@ namespace putio
 
         // Methods and Modules
 
-        private void DownloadFile()
-        {
-            if (FileDownloads.Any())
-            {
-                foreach (WebClient wc in WebClients)
-                {
-                    if (!wc.IsBusy)
-                    {
-                        var putiofile = FileDownloads.Dequeue();
-                        putiofile.rowinque.Cells["ColumnStatus"].Value = "Queued";
-                        putiofile.webcilent = wc;
-
-                        ContextMenuStrip cstrip = new ContextMenuStrip();
-                        cstrip.Items.Add("Cancel").Click += (s, e1) => CstripDownload_Click(s, e1, putiofile);
-                        putiofile.rowinque.ContextMenuStrip = cstrip;
-                        wc.DownloadFileAsync(putiofile.downloadlink, putiofile.download_path, putiofile);
-                        return;
-                    }
-                }
-            }
-            return;
-        }
-
-        private void QueueDownload(PutioFile putiofile)
-        {
-            if (!AlreadyDownloading(putiofile))
-            {
-                string started = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
-                string path = Properties.Settings.Default.DownloadDirectory + @"\" + putiofile.name;
-
-                dataGridViewDownloads.Rows.Add(putiofile.name, putiofile.file_type, started, "", "Not Started");
-                DataGridViewRow newDownloadRow = dataGridViewDownloads.Rows[dataGridViewDownloads.Rows.Count - 1];
-
-                putiofile.rowinque = newDownloadRow;
-                putiofile.download_path = path;
-
-                FileDownloads.Enqueue(putiofile);
-                DownloadFile();
-            }
-        }
-
         private async void DeleteFile(PutioFile inPutioFile)
         {
             var deletemessage = await filemgr.Delete(inPutioFile.id);
@@ -520,6 +478,42 @@ namespace putio
 
         private void menuStripMain_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
+
+        }
+
+        private async void createFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode selectednode = treeViewPutioFiles.SelectedNode;
+            var file = selectednode.Tag as PutioFile;
+            string id = (selectednode.Tag as PutioFile).id;
+            selectednode.Expand();
+            if (file.file_type != "FOLDER")
+            {
+                id = file.parent_id;
+                selectednode = selectednode.Parent;
+            }
+                
+            var resposne = await filemgr.CreateFolder("New Folder", id);
+            TreeNode node = selectednode.Nodes.Add("New Folder");
+            node.Tag = SetPutioFile(resposne);
+            var putiofile = node.Tag as PutioFile;
+            putiofile.file = node;
+            node.BeginEdit();
+        } 
+
+        private void contextMenuStripPutioFiles_Opening(object sender, CancelEventArgs e)
+        {
+            TreeNode selectednode = treeViewPutioFiles.SelectedNode;
+            var file = selectednode.Tag as PutioFile;
+            if (file.file_type == "FOLDER")
+                contextMenuStripPutioFiles.Items["downloadToolStripMenuItem"].Enabled = false;
+
+            if (selectednode == rootnode)
+            {
+                contextMenuStripPutioFiles.Items["downloadToolStripMenuItem"].Enabled = false;
+            }
+            else
+                contextMenuStripPutioFiles.Enabled = true;
 
         }
     }

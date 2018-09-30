@@ -25,7 +25,6 @@ namespace putio
             {
                 if (row.Cells["ColumnFile"].Value.ToString() == putiofile.name)
                 {
-                    //Console.WriteLine("file " + putiofile.name + " is already downloading");
                     return true;
                 }
             }
@@ -34,12 +33,12 @@ namespace putio
 
         private bool DownloadInProgress()
         {
+            List<string> allowed = new List<string> { "complete", "failed", "error" };
             foreach (DataGridViewRow row in dataGridViewDownloads.Rows)
             {
-                if (row.Cells["ColumnStatus"].Value.ToString() != "COMPLETE")
-                {
+                string value = row.Cells["ColumnStatus"].Value.ToString().ToLower();
+                if (allowed.FirstOrDefault(x => x.Contains(value)) == null)
                     return true;
-                }
             }
             return false;
         }

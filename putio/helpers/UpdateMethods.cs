@@ -62,6 +62,5 @@ namespace putio
         {
             toolStripStatusLabel1.Text = inStrStatusText;
         }
-
     }
 }
