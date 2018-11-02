@@ -171,6 +171,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="lib\PutioApi.dll" />
     <Content Include="putio.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

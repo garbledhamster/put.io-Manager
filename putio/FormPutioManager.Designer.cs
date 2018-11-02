@@ -323,7 +323,7 @@
             this.treeViewPutioFiles.Name = "treeViewPutioFiles";
             this.treeViewPutioFiles.SelectedImageIndex = 3;
             this.treeViewPutioFiles.ShowNodeToolTips = true;
-            this.treeViewPutioFiles.Size = new System.Drawing.Size(199, 303);
+            this.treeViewPutioFiles.Size = new System.Drawing.Size(199, 399);
             this.treeViewPutioFiles.TabIndex = 2;
             this.treeViewPutioFiles.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.treeViewPutioFiles_AfterLabelEdit);
             this.treeViewPutioFiles.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewPutioFiles_BeforeExpand);
@@ -354,7 +354,7 @@
             // 
             this.splitContainerFiles.Panel2.Controls.Add(this.treeViewAutoDownloads);
             this.splitContainerFiles.Size = new System.Drawing.Size(199, 471);
-            this.splitContainerFiles.SplitterDistance = 303;
+            this.splitContainerFiles.SplitterDistance = 399;
             this.splitContainerFiles.TabIndex = 4;
             // 
             // treeViewAutoDownloads
@@ -371,7 +371,7 @@
             this.treeViewAutoDownloads.ShowNodeToolTips = true;
             this.treeViewAutoDownloads.ShowPlusMinus = false;
             this.treeViewAutoDownloads.ShowRootLines = false;
-            this.treeViewAutoDownloads.Size = new System.Drawing.Size(199, 164);
+            this.treeViewAutoDownloads.Size = new System.Drawing.Size(199, 68);
             this.treeViewAutoDownloads.TabIndex = 3;
             // 
             // contextMenuStripAutoDownload
@@ -745,10 +745,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnUploaded;
         private System.Windows.Forms.DataGridViewTextBoxColumn TransferStarted;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
-        private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem autoDownloadsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem transfersToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem managersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem checkToolStripMenuItem;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnFile;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnType;
@@ -762,6 +758,10 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.ToolStripMenuItem createFolderToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem managersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem transfersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem autoDownloadsToolStripMenuItem;
     }
 }
 

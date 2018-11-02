@@ -30,7 +30,7 @@ namespace putio
                 string name = transfer["name"].ToString();
                 string id = transfer["id"].ToString();
                 string peers = transfer["peers_connected"].ToString();
-                string uploaded = ((Convert.ToInt32(transfer["uploaded"]) / 1024) / 1024).ToString() + " Mb";
+                string uploaded = ((Convert.ToInt64(transfer["uploaded"]) / 1024) / 1024).ToString() + " Mb";
                 string status = transfer["status"].ToString();
                 string parentid = transfer["save_parent_id"].ToString();
                 string source = transfer["source"].ToString();

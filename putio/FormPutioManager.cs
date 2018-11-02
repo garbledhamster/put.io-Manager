@@ -43,10 +43,7 @@ namespace putio
             treeViewPutioFiles.ShowNodeToolTips = Properties.Settings.Default.ShowToolTips;
             treeViewPutioFiles.SelectedNode = treeViewPutioFiles.Nodes[0];
 
-           
-            autoDownloadsToolStripMenuItem.Checked = !Properties.Settings.Default.ShowAutoDownloads;
-            transfersToolStripMenuItem.Checked = !Properties.Settings.Default.ShowTransfers;
-            managersToolStripMenuItem.Checked = !Properties.Settings.Default.ShowManager;
+
             splitContainerFiles.Panel2Collapsed = Properties.Settings.Default.ShowAutoDownloads;
             splitContainer1.Panel2Collapsed = Properties.Settings.Default.ShowManager;
 
